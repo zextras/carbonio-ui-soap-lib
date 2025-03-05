@@ -1,0 +1,3 @@
+reuse lint
+npm run lint -- --quiet
+npm run type-check
