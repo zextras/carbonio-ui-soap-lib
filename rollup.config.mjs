@@ -6,7 +6,7 @@ export default {
 		typescript()
 	],
 	output: {
-		dir: 'dist',
+		file: '/dist/bundle.mjs',
 		format: 'es',
 		sourcemap: true,
 	},
