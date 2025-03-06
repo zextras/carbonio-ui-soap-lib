@@ -6,7 +6,7 @@
     ".": {
       "import": "./dist/bundle.mjs",
       "require": "./dist/bundle.cjs",
-      "types": "./dist/bundle.d.ts"
+      "types": "./dist/index.d.ts"
     }
   },
   "scripts": {

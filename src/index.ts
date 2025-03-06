@@ -4,4 +4,4 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-export * as testFn from './customHook';
+export * from './customHook';
