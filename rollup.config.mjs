@@ -6,18 +6,33 @@
 import babel from '@rollup/plugin-babel';
 import nodeResolve from '@rollup/plugin-node-resolve';
 
+import pkg from './package.json' with { type: 'json' };
+
 export default {
 	input: 'src/index.ts',
-	output: {
-		file: 'dist/bundle.mjs',
-		format: 'es',
-		sourcemap: true
-	},
+	output: [
+		{
+			file: pkg.exports['.'].require,
+			format: 'cjs',
+			interop: 'compat',
+			sourcemap: true
+		},
+		{
+			file: pkg.exports['.'].import,
+			format: 'esm',
+			interop: 'compat',
+			sourcemap: true
+		}
+	],
 	plugins: [
 		nodeResolve({
 			extensions: ['.mjs', '.js', '.json', '.node', '.ts', '.tsx', '.jsx']
 		}),
-		babel({ babelHelpers: 'bundled', extensions: ['.js', '.jsx', '.ts', '.tsx'], ignore: ['node_modules'] })
+		babel({
+			babelHelpers: 'runtime',
+			extensions: ['.js', '.jsx', '.ts', '.tsx'],
+			ignore: ['node_modules']
+		})
 	],
 	external: ['react']
 };

@@ -9,5 +9,6 @@ import { useState } from 'react';
 export const testFn: () => unknown = (): unknown => {
 	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const [test, setTest] = useState('test');
+	console.log('test');
 	return test;
 };

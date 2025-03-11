@@ -10,7 +10,10 @@
     }
   },
   "scripts": {
-    "build": "npx rollup -c",
+    "clean": "rm -rf dist",
+    "build": "npm run build:js && npm run build:types",
+    "build:js": "npx rollup -c rollup.config.mjs",
+    "build:types": "tsc -p tsconfig.types.json",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx --resolve-plugins-relative-to node_modules/@zextras/carbonio-ui-configs src",
     "prepare": "husky",
     "type-check": "tsc --noEmit",
@@ -24,6 +27,7 @@
   "license": "AGPL-3.0-only",
   "devDependencies": {
     "@babel/core": "^7.26.9",
+    "@babel/plugin-transform-runtime": "^7.26.9",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-react": "^7.26.3",
     "@babel/preset-typescript": "^7.26.0",

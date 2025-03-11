@@ -3,15 +3,10 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-module.exports = () => {
-	const presetEnv = [
-		'@babel/preset-env',
-		{
-			useBuiltIns: 'usage',
-			corejs: 3.36
-		}
-	];
+module.exports = (api) => {
+	api.cache(true);
 	return {
-		presets: [presetEnv, '@babel/preset-react', '@babel/preset-typescript']
+		presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
+		plugins: ['@babel/plugin-transform-runtime']
 	};
 };

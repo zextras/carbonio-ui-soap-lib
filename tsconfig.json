@@ -5,10 +5,7 @@
     "src/**/*.tsx",
   ],
   "exclude": [
-    "node_modules"
-  ],
-  "compilerOptions": {
-    "declaration": true,
-    "outDir": "dist"
-  },
+    "node_modules",
+    "dist"
+  ]
 }
