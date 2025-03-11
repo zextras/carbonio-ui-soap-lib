@@ -40,7 +40,8 @@
     "eslint-plugin-notice": "^1.0.0",
     "husky": "^9.1.7",
     "rollup": "^4.35.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
   },
   "peerDependencies": {
     "react": "^18.3.1"
