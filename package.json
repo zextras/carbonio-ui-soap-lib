@@ -35,11 +35,11 @@
     "@commitlint/config-conventional": "^19.6.0",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-typescript": "^12.1.2",
     "@types/react": "^18.3.7",
     "@zextras/carbonio-ui-configs": "^2.0.1",
     "eslint-plugin-notice": "^1.0.0",
     "husky": "^9.1.7",
+    "rollup": "^4.35.0",
     "typescript": "^5.8.2"
   },
   "peerDependencies": {
