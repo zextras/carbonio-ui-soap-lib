@@ -1,8 +1,5 @@
-/*
- * SPDX-FileCopyrightText: 2025 Zextras <https://www.zextras.com>
- *
- * SPDX-License-Identifier: AGPL-3.0-only
- */
+const baseConfig = require('@zextras/carbonio-ui-configs/rules/prettier.js');
+
 module.exports = {
-	...require('@zextras/carbonio-ui-configs/rules/prettier.js')
+	...baseConfig
 };

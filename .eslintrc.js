@@ -3,24 +3,10 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const baseConfig = require('./node_modules/@zextras/carbonio-ui-configs/rules/eslint-base');
+
 module.exports = {
-	extends: ['./node_modules/@zextras/carbonio-ui-configs/rules/eslint.js'],
-	plugins: ['notice'],
-	rules: {
-		'notice/notice': [
-			'error',
-			{
-				templateFile: '.reuse/template.js'
-			}
-		]
-	},
-	overrides: [
-		{
-			files: ['**/tests/**/*'],
-			extends: ['plugin:jest-dom/recommended', 'plugin:testing-library/react'],
-			rules: {
-				'import/no-extraneous-dependencies': 'off'
-			}
-		}
-	]
+	...baseConfig
 };
