@@ -4,9 +4,9 @@
 	"description": "Mailbox API frontend layer",
 	"exports": {
 		".": {
+			"types": "./dist/index.d.ts",
 			"import": "./dist/bundle.mjs",
-			"require": "./dist/bundle.cjs",
-			"types": "./dist/index.d.ts"
+			"require": "./dist/bundle.cjs"
 		}
 	},
 	"scripts": {
@@ -36,15 +36,19 @@
 		"@commitlint/config-conventional": "^19.6.0",
 		"@rollup/plugin-babel": "^6.0.4",
 		"@rollup/plugin-node-resolve": "^16.0.0",
+		"@testing-library/react": "16.2",
 		"@types/react": "^18.3.7",
+		"@types/react-dom": "^18.3.5",
 		"@zextras/carbonio-ui-configs": "github:zextras/carbonio-ui-configs#feat-split-eslint-config",
 		"eslint-plugin-notice": "^1.0.0",
 		"husky": "^9.1.7",
+		"jsdom": "^26.0.0",
 		"rollup": "^4.35.0",
 		"typescript": "^5.8.2",
 		"vitest": "^3.0.8"
 	},
 	"peerDependencies": {
-		"react": "^18.3.1"
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1"
 	}
 }
