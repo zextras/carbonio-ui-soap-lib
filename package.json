@@ -15,6 +15,7 @@
 		"build:js": "npx rollup -c rollup.config.mjs",
 		"build:types": "tsc -p tsconfig.types.json",
 		"lint": "eslint --ext .js,.jsx,.ts,.tsx --resolve-plugins-relative-to node_modules/@zextras/carbonio-ui-configs src",
+		"prettify": "prettier --write src",
 		"prepare": "husky",
 		"type-check": "tsc --noEmit",
 		"packTo": "npm pack --pack-destination $PKG_PATH && cd $PKG_PATH && npm i carbonio-mailbox-api-ui-$npm_package_version.tgz"
