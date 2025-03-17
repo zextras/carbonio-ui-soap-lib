@@ -43,6 +43,7 @@
 		"eslint-plugin-notice": "^1.0.0",
 		"husky": "^9.1.7",
 		"jsdom": "^26.0.0",
+		"msw": "^2.7.3",
 		"rollup": "^4.35.0",
 		"typescript": "^5.8.2",
 		"vitest": "^3.0.8"
@@ -50,5 +51,10 @@
 	"peerDependencies": {
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1"
+	},
+	"dependencies": {
+		"@types/ua-parser-js": "^0.7.39",
+		"lodash": "^4.17.21",
+		"ua-parser-js": "^1.0.37"
 	}
 }
