@@ -6,10 +6,9 @@
 
 import { find, map } from 'lodash';
 
-import { soapFetch, getPollingInterval, NoOpResponse, NoOpRequest } from './fetch-utils';
+import { soapFetch } from './fetch-utils';
 import { userAgent } from './user-agent';
 import { ApiManager } from '../ApiManager';
-import { JSNS, SHELL_APP_ID } from '../constants';
 import {
 	dispatchAuthErrorEvent,
 	dispatchUserQuotaEvent
@@ -25,15 +24,16 @@ import type {
 	SoapNotify
 } from '../types/network';
 
-const fetchNoOp = (): void => {
-	// eslint-disable-next-line @typescript-eslint/no-use-before-define
-	getSoapFetch(SHELL_APP_ID)<NoOpRequest, NoOpResponse>(
-		'NoOp',
-		useNetworkStore.getState().pollingInterval === 500
-			? { _jsns: JSNS.mail, limitToOneBlocked: 1, wait: 1 }
-			: { _jsns: JSNS.mail }
-	);
-};
+// TODO IMPLEMENT POLLING
+// const fetchNoOp = (): void => {
+// 	// eslint-disable-next-line @typescript-eslint/no-use-before-define
+// 	getSoapFetch(SHELL_APP_ID)<NoOpRequest, NoOpResponse>(
+// 		'NoOp',
+// 		useNetworkStore.getState().pollingInterval === 500
+// 			? { _jsns: JSNS.mail, limitToOneBlocked: 1, wait: 1 }
+// 			: { _jsns: JSNS.mail }
+// 	);
+// };
 
 const composeAccountTag = (otherAccount?: string): string => {
 	if (otherAccount) {
@@ -50,7 +50,7 @@ const composeAccountTag = (otherAccount?: string): string => {
 	return '';
 };
 
-const getXmlSession = (): string => {
+const composeSessionTag = (): string => {
 	const { sessionInfo } = ApiManager.getApiManager();
 	if (sessionInfo.sessionId) {
 		return `<session id="${sessionInfo.sessionId}"/>`;
@@ -93,27 +93,31 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 		return;
 	}
 	if (res.Header?.context) {
+		// Extract used quota from response
 		const responseUsedQuota =
 			res.Header.context?.refresh?.mbx?.[0]?.s ??
 			res.Header.context?.notify?.[0]?.modified?.mbx?.[0]?.s;
+		if (responseUsedQuota) {
+			dispatchUserQuotaEvent(responseUsedQuota);
+		}
+
 		const _context = normalizeContext(res.Header.context);
 		// TODO IMPLEMENT NOTIFY MANAGEMENT
 		// const seq = maxBy(_context.notify, 'seq')?.seq ?? 0;
 
-		dispatchUserQuotaEvent(responseUsedQuota ?? usedQuota);
 		// TODO MOVE STORE QUOTA MANAGEMENT OUTSIDE
 		// useAccountStore.setState({
 		// 	usedQuota: responseUsedQuota ?? usedQuota
 		// });
 
-		// TODO IMPLEMENT POLLING
-		const nextPollingInterval = getPollingInterval(res);
-		useNetworkStore.setState({
-			noOpTimeout: setTimeout(() => fetchNoOp(), nextPollingInterval),
-			pollingInterval: nextPollingInterval,
-			seq,
-			..._context
-		});
+		// TODO IMPLEMENT POLLING AND NOTIFY
+		// const nextPollingInterval = getPollingInterval(res);
+		// useNetworkStore.setState({
+		// 	noOpTimeout: setTimeout(() => fetchNoOp(), nextPollingInterval),
+		// 	pollingInterval: nextPollingInterval,
+		// 	seq,
+		// 	..._context
+		// });
 	}
 };
 
@@ -168,18 +172,26 @@ export const getXmlSoapFetch =
 		api: string,
 		body: Request,
 		otherAccount?: string
-	): Promise<Response> =>
-		fetch(`/service/soap/${api}Request`, {
+	): Promise<Response> => {
+		const { sessionInfo } = ApiManager.getApiManager();
+		const xmlSessionTag = composeSessionTag();
+		const xmlAccountTag = composeAccountTag(otherAccount);
+
+		return fetch(`/service/soap/${api}Request`, {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/soap+xml'
 			},
 			body: `<?xml version="1.0" encoding="utf-8"?>
 		<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
-			<soap:Header><context xmlns="urn:zimbra"><userAgent name="${userAgent}" version="${zimbraVersion}"/>${getXmlSession()}${composeAccountTag(
-				account,
-				otherAccount
-			)}<format type="js"/></context></soap:Header>
+			<soap:Header>
+				<context xmlns="urn:zimbra">
+					<userAgent name="${userAgent}" version="${sessionInfo.carbonioVersion}"/>
+					${xmlSessionTag}
+					${xmlAccountTag}
+					<format type="js"/>
+				</context>
+			</soap:Header>
 			<soap:Body>${body}</soap:Body>
 		</soap:Envelope>`
 		}) // TODO proper error handling
@@ -189,3 +201,4 @@ export const getXmlSoapFetch =
 				report(app)(e);
 				throw e;
 			}) as Promise<Response>;
+	};

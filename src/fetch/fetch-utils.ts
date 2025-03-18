@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Zextras <https://www.zextras.com>
+ * SPDX-FileCopyrightText: 2025 Zextras <https://www.zextras.com>
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
@@ -7,7 +7,7 @@ import { userAgent } from './user-agent';
 import { useAccountStore } from '../store/account';
 import { useNetworkStore } from '../store/network';
 import type { Account } from '../types/account';
-import type { RawSoapResponse } from '../types/network';
+import type { RawSoapResponse, SoapBody } from '../types/network';
 
 export type NoOpRequest = SoapBody<{
 	limitToOneBlocked?: 0 | 1;
