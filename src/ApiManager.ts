@@ -4,25 +4,25 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+type ApiManagerSessionInfo = {
+	accountId?: string;
+	accountName?: string;
+	sessionId?: string;
+	carbonioVersion?: string;
+};
+
 export class ApiManager {
-		static getApiManager() {
-				if (!window.carbonioApiManager) {
-					window.carbonioApiManager = new ApiManager();
-				}
-				return window.carbonioApiManager;
+	static getApiManager(): ApiManager {
+		if (!window.carbonioApiManager) {
+			window.carbonioApiManager = new ApiManager();
 		}
+		return window.carbonioApiManager;
+	}
 
-		carbonioVersion: string;
+	sessionInfo: ApiManagerSessionInfo;
 
-		accountId: string;
-
-		accountName: string;
-
-		constructor() {
-			// TODO INIT POLLING
-			this.carbonioVersion = '';
-			this.accountId = '';
-			this.accountName = '';
-		}
-
+	constructor() {
+		this.sessionInfo = {};
+		// TODO INIT POLLING
+	}
 }

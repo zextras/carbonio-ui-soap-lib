@@ -7,7 +7,6 @@
 import type { AccountACEInfo } from './entities';
 import type { SoapBody, SoapContext, SoapFault } from './soap';
 import type { JSNS } from '../../constants';
-import type { Exactify, RequireAtLeastOne, ValueOf } from '../../utils/typeUtils';
 import type {
 	AccountRights,
 	AccountSettingsPrefs,
@@ -16,8 +15,30 @@ import type {
 	Signature,
 	ZimletProp
 } from '../account';
+import type { Exactify, RequireAtLeastOne, ValueOf } from '../typeUtils';
 
 export * from './soap';
+
+export type ZimletPkgDescription = {
+	zimlet: Array<{
+		name: string;
+		label: string;
+		description: string;
+		version: string;
+		/* Property related to Zextras */ zapp?: 'true';
+		/* Property related to Zextras */ 'zapp-main'?: string;
+		/* Property related to Zextras */ 'zapp-version'?: string;
+		/* Property related to Zextras */ 'zapp-handlers'?: string;
+		/* Property related to Zextras */ 'zapp-style'?: string;
+		/* Property related to Zextras */ 'zapp-theme'?: string;
+		/* Property related to Zextras */ 'zapp-serviceworker-extension'?: string;
+	}>;
+	zimletContext: Array<{
+		baseUrl: string;
+		presence: 'enabled';
+		priority: number;
+	}>;
+};
 
 export type GetInfoResponse = {
 	name: string;

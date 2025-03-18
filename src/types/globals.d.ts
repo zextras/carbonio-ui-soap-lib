@@ -8,6 +8,6 @@ import { ApiManager } from '../ApiManager';
 
 declare global {
 	interface Window {
-		carbonioApiManager: ApiManager
+		carbonioApiManager?: ApiManager;
 	}
 }

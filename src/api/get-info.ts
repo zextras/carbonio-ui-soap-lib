@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { JSNS, SHELL_APP_ID } from './constants';
-import { getSoapFetch } from './fetch/fetch';
-import { SoapBody } from './types/network/soap';
-import { GetInfoResponse } from './types/network';
+import { JSNS, SHELL_APP_ID } from '../constants';
+import { getSoapFetch } from '../fetch/fetch';
+import { GetInfoResponse } from '../types/network';
+import { SoapBody } from '../types/network/soap';
 
 export const getInfo = (): Promise<any> =>
 	getSoapFetch(SHELL_APP_ID)<SoapBody<{ rights: string }>, GetInfoResponse>('GetInfo', {

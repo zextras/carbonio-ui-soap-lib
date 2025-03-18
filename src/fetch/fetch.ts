@@ -4,25 +4,26 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { find, map, maxBy } from 'lodash';
+import { find, map } from 'lodash';
 
 import { soapFetch, getPollingInterval, NoOpResponse, NoOpRequest } from './fetch-utils';
 import { userAgent } from './user-agent';
-import { goToLogin } from './utils';
+import { ApiManager } from '../ApiManager';
 import { JSNS, SHELL_APP_ID } from '../constants';
+import {
+	dispatchAuthErrorEvent,
+	dispatchUserQuotaEvent
+} from '../customEvent/custumEventDispatcher';
 import { report } from '../reporting/functions';
-import type { Account } from '../types/account';
 import type {
 	ErrorSoapBodyResponse,
 	ErrorSoapResponse,
 	RawSoapContext,
 	RawSoapNotify,
 	RawSoapResponse,
-	SoapBody,
 	SoapContext,
 	SoapNotify
 } from '../types/network';
-import { dispatchAuthErrorEvent, dispatchUserQuotaEvent } from '../customEvent/custumEventDispatcher';
 
 const fetchNoOp = (): void => {
 	// eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -34,25 +35,25 @@ const fetchNoOp = (): void => {
 	);
 };
 
-const getXmlAccount = (acc?: Account, otherAccount?: string): string => {
+const composeAccountTag = (otherAccount?: string): string => {
 	if (otherAccount) {
 		return `<account by="name">${otherAccount}</account>`;
 	}
-	if (acc) {
-		if (acc.name) {
-			return `<account by="name">${acc.name}</account>`;
-		}
-		if (acc.id) {
-			return `<account by="id">${acc.id}</account>`;
-		}
+
+	const { sessionInfo } = ApiManager.getApiManager();
+	if (sessionInfo.accountName) {
+		return `<account by="name">${sessionInfo.accountName}</account>`;
+	}
+	if (sessionInfo.accountId) {
+		return `<account by="id">${sessionInfo.accountId}</account>`;
 	}
 	return '';
 };
 
 const getXmlSession = (): string => {
-	const sessionId = useNetworkStore.getState().session?.id;
-	if (sessionId) {
-		return `<session id="${sessionId}"/>`;
+	const { sessionInfo } = ApiManager.getApiManager();
+	if (sessionInfo.sessionId) {
+		return `<session id="${sessionInfo.sessionId}"/>`;
 	}
 	return '';
 };
@@ -69,9 +70,9 @@ const normalizeContext = ({ notify: rawNotify, ...context }: RawSoapContext): So
 };
 
 const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
-	const { noOpTimeout } = useNetworkStore.getState();
-	const { usedQuota } = useAccountStore.getState();
-	clearTimeout(noOpTimeout);
+	// TODO IMPLEMENT POLLING
+	// const { noOpTimeout } = useNetworkStore.getState();
+	// clearTimeout(noOpTimeout);
 	if (res.Body.Fault) {
 		if (
 			find(
@@ -80,12 +81,6 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 			)
 		) {
 			dispatchAuthErrorEvent('NOT_AUTHENTICATED');
-			// TODO MOVE OUTSIDE
-			// if (IS_FOCUS_MODE) {
-			// 	useAccountStore.setState({ authenticated: false });
-			// } else {
-			// 	goToLogin();
-			// }
 		}
 		console.error(
 			new Error(
@@ -94,13 +89,16 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 				}`
 			)
 		);
+
+		return;
 	}
 	if (res.Header?.context) {
 		const responseUsedQuota =
 			res.Header.context?.refresh?.mbx?.[0]?.s ??
 			res.Header.context?.notify?.[0]?.modified?.mbx?.[0]?.s;
 		const _context = normalizeContext(res.Header.context);
-		const seq = maxBy(_context.notify, 'seq')?.seq ?? 0;
+		// TODO IMPLEMENT NOTIFY MANAGEMENT
+		// const seq = maxBy(_context.notify, 'seq')?.seq ?? 0;
 
 		dispatchUserQuotaEvent(responseUsedQuota ?? usedQuota);
 		// TODO MOVE STORE QUOTA MANAGEMENT OUTSIDE
@@ -170,15 +168,15 @@ export const getXmlSoapFetch =
 		api: string,
 		body: Request,
 		otherAccount?: string
-	): Promise<Response> => {
-		return fetch(`/service/soap/${api}Request`, {
+	): Promise<Response> =>
+		fetch(`/service/soap/${api}Request`, {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/soap+xml'
 			},
 			body: `<?xml version="1.0" encoding="utf-8"?>
 		<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
-			<soap:Header><context xmlns="urn:zimbra"><userAgent name="${userAgent}" version="${zimbraVersion}"/>${getXmlSession()}${getXmlAccount(
+			<soap:Header><context xmlns="urn:zimbra"><userAgent name="${userAgent}" version="${zimbraVersion}"/>${getXmlSession()}${composeAccountTag(
 				account,
 				otherAccount
 			)}<format type="js"/></context></soap:Header>
@@ -191,4 +189,3 @@ export const getXmlSoapFetch =
 				report(app)(e);
 				throw e;
 			}) as Promise<Response>;
-	};

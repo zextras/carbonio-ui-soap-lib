@@ -5,8 +5,8 @@
  */
 
 import type { NameSpace } from './index';
-import type { BaseFolder, LinkFolderFields, SearchFolderFields } from '../misc';
 import type { Tag } from '../tags';
+import { BaseFolder, LinkFolderFields, SearchFolderFields } from './entities';
 
 export interface RawSoapHeader {
 	context: RawSoapContext;
