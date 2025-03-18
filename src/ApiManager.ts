@@ -17,7 +17,7 @@ export class ApiManager {
 		accountId: string;
 
 		accountName: string;
-		
+
 		constructor() {
 			// TODO INIT POLLING
 			this.carbonioVersion = '';
