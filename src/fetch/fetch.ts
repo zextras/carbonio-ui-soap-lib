@@ -6,14 +6,11 @@
 
 import { find, map, maxBy } from 'lodash';
 
-import { soapFetch } from './fetch-utils';
+import { soapFetch, getPollingInterval, NoOpResponse, NoOpRequest } from './fetch-utils';
 import { userAgent } from './user-agent';
 import { goToLogin } from './utils';
-import { IS_FOCUS_MODE, JSNS, SHELL_APP_ID } from '../constants';
+import { JSNS, SHELL_APP_ID } from '../constants';
 import { report } from '../reporting/functions';
-import { useAccountStore } from '../store/account';
-import { useNetworkStore } from '../store/network';
-import { getPollingInterval } from '../store/network/utils';
 import type { Account } from '../types/account';
 import type {
 	ErrorSoapBodyResponse,
@@ -25,15 +22,7 @@ import type {
 	SoapContext,
 	SoapNotify
 } from '../types/network';
-
-export type NoOpRequest = SoapBody<{
-	limitToOneBlocked?: 0 | 1;
-	wait?: 0 | 1;
-}>;
-
-export type NoOpResponse = SoapBody<{
-	waitDisallowed?: boolean;
-}>;
+import { dispatchAuthErrorEvent, dispatchUserQuotaEvent } from '../customEvent/custumEventDispatcher';
 
 const fetchNoOp = (): void => {
 	// eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -90,11 +79,13 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 				(code) => code === (<ErrorSoapResponse>res).Body.Fault.Detail?.Error?.Code
 			)
 		) {
-			if (IS_FOCUS_MODE) {
-				useAccountStore.setState({ authenticated: false });
-			} else {
-				goToLogin();
-			}
+			dispatchAuthErrorEvent('NOT_AUTHENTICATED');
+			// TODO MOVE OUTSIDE
+			// if (IS_FOCUS_MODE) {
+			// 	useAccountStore.setState({ authenticated: false });
+			// } else {
+			// 	goToLogin();
+			// }
 		}
 		console.error(
 			new Error(
@@ -110,10 +101,14 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 			res.Header.context?.notify?.[0]?.modified?.mbx?.[0]?.s;
 		const _context = normalizeContext(res.Header.context);
 		const seq = maxBy(_context.notify, 'seq')?.seq ?? 0;
-		useAccountStore.setState({
-			usedQuota: responseUsedQuota ?? usedQuota
-		});
 
+		dispatchUserQuotaEvent(responseUsedQuota ?? usedQuota);
+		// TODO MOVE STORE QUOTA MANAGEMENT OUTSIDE
+		// useAccountStore.setState({
+		// 	usedQuota: responseUsedQuota ?? usedQuota
+		// });
+
+		// TODO IMPLEMENT POLLING
 		const nextPollingInterval = getPollingInterval(res);
 		useNetworkStore.setState({
 			noOpTimeout: setTimeout(() => fetchNoOp(), nextPollingInterval),
@@ -149,6 +144,7 @@ export const getSoapFetch =
 			// TODO proper error handling
 			.then((res: RawSoapResponse<Response>) => handleResponse(api, res))
 			.catch((e) => {
+				// TODO DISCUSS IF WE CAN TOTALLY REMOVE REPORTING
 				report(app)(e);
 				throw e;
 			}) as Promise<Response>;
@@ -175,7 +171,6 @@ export const getXmlSoapFetch =
 		body: Request,
 		otherAccount?: string
 	): Promise<Response> => {
-		const { zimbraVersion, account } = useAccountStore.getState();
 		return fetch(`/service/soap/${api}Request`, {
 			method: 'POST',
 			headers: {
