@@ -19,7 +19,11 @@ export class ApiManager {
 		return window.carbonioApiManager;
 	}
 
-	sessionInfo: ApiManagerSessionInfo;
+	private sessionInfo: ApiManagerSessionInfo;
+
+	getSessionInfo(): ApiManagerSessionInfo {
+		return this.sessionInfo;
+	}
 
 	setSessionInfo(sessionInfo: Partial<ApiManagerSessionInfo>): void {
 		this.sessionInfo = { ...this.sessionInfo, ...sessionInfo };

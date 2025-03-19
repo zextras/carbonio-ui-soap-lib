@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import type { DELEGATED_SEND_SAVE_TARGET } from '../../constants';
-import type { StringOfLength } from '../../utils/typeUtils';
+import { DELEGATED_SEND_SAVE_TARGET } from '../../constants';
+import { StringOfLength } from '../typeUtils';
 
 export interface ZimletProp {
 	name: string;

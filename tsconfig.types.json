@@ -3,6 +3,9 @@
 	"files": ["src/types/index.ts"],
 	"exclude": ["src/**/*.test.*", "node_modules", "dist"],
 	"compilerOptions": {
-		"outDir": "./dist"
+		"outDir": "./dist",
+		"types": [
+			"./src/types/globals.d.ts",
+		]
 	}
 }

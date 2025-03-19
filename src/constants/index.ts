@@ -6,6 +6,8 @@
 
 export const SHELL_APP_ID = 'carbonio-shell-ui';
 
+export const DELEGATED_SEND_SAVE_TARGET = ['owner', 'sender', 'both', 'none'];
+
 export const JSNS = {
 	account: 'urn:zimbraAccount',
 	admin: 'urn:zimbraAdmin',

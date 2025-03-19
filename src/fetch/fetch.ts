@@ -39,7 +39,7 @@ const composeAccountTag = (otherAccount?: string): string => {
 		return `<account by="name">${otherAccount}</account>`;
 	}
 
-	const { sessionInfo } = ApiManager.getApiManager();
+	const sessionInfo = ApiManager.getApiManager().getSessionInfo();
 	if (sessionInfo.accountName) {
 		return `<account by="name">${sessionInfo.accountName}</account>`;
 	}
@@ -50,7 +50,7 @@ const composeAccountTag = (otherAccount?: string): string => {
 };
 
 const composeSessionTag = (): string => {
-	const { sessionInfo } = ApiManager.getApiManager();
+	const sessionInfo = ApiManager.getApiManager().getSessionInfo();
 	if (sessionInfo.session) {
 		return `<session id="${sessionInfo.session.id}"/>`;
 	}
@@ -171,7 +171,7 @@ export const legacyXmlSoapFetch = <Request, Response extends Record<string, unkn
 	body: Request,
 	otherAccount?: string
 ): Promise<Response> => {
-	const { sessionInfo } = ApiManager.getApiManager();
+	const sessionInfo = ApiManager.getApiManager().getSessionInfo();
 	const xmlSessionTag = composeSessionTag();
 	const xmlAccountTag = composeAccountTag(otherAccount);
 
