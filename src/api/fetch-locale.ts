@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { JSNS, SHELL_APP_ID } from '../constants';
-import { getSoapFetch } from '../fetch/fetch';
+import { JSNS } from '../constants';
+import { legacySoapFetch } from '../fetch/fetch';
 import type { AvailableLocalesResponse, SoapBody } from '../types/network';
 
 export const fetchLocales = (): Promise<AvailableLocalesResponse> =>
-	getSoapFetch(SHELL_APP_ID)<SoapBody, AvailableLocalesResponse>('GetAvailableLocales', {
+	legacySoapFetch<SoapBody, AvailableLocalesResponse>('GetAvailableLocales', {
 		_jsns: JSNS.account
 	});
