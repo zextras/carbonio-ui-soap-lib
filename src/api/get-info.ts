@@ -4,19 +4,31 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { JSNS, SHELL_APP_ID } from '../constants';
-import { getSoapFetch } from '../fetch/fetch';
+import { ApiManager } from '../ApiManager';
+import { JSNS } from '../constants';
+import { legacySoapFetch } from '../fetch/fetch';
 import { GetInfoResponse } from '../types/network';
 import { SoapBody } from '../types/network/soap';
 
-export const getInfo = (): Promise<any> =>
-	getSoapFetch(SHELL_APP_ID)<SoapBody<{ rights: string }>, GetInfoResponse>('GetInfo', {
+type GetInfoParams = {
+	rights?: string;
+	sections?: string;
+};
+
+export const getInfo = ({ rights, sections }: GetInfoParams): Promise<GetInfoResponse> =>
+	legacySoapFetch<SoapBody<GetInfoParams>, GetInfoResponse>('GetInfo', {
 		_jsns: JSNS.account,
-		rights: 'sendAs,sendAsDistList,viewFreeBusy,sendOnBehalfOf,sendOnBehalfOfDistList'
+		rights,
+		sections
 	}).then((res: GetInfoResponse) => {
 		if (res) {
 			const { id, name, version } = res;
-			// TODO SAVE THIS DATA FOR NEXT CALLS
-			return res;
+			ApiManager.getApiManager().setSessionInfo({
+				accountId: id,
+				accountName: name,
+				carbonioVersion: version
+			});
 		}
+
+		return res;
 	});

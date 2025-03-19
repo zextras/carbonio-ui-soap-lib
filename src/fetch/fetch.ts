@@ -13,7 +13,6 @@ import {
 	dispatchAuthErrorEvent,
 	dispatchUserQuotaEvent
 } from '../customEvent/custumEventDispatcher';
-import { report } from '../reporting/functions';
 import type {
 	ErrorSoapBodyResponse,
 	ErrorSoapResponse,
@@ -52,8 +51,8 @@ const composeAccountTag = (otherAccount?: string): string => {
 
 const composeSessionTag = (): string => {
 	const { sessionInfo } = ApiManager.getApiManager();
-	if (sessionInfo.sessionId) {
-		return `<session id="${sessionInfo.sessionId}"/>`;
+	if (sessionInfo.session) {
+		return `<session id="${sessionInfo.session.id}"/>`;
 	}
 	return '';
 };
@@ -92,7 +91,12 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 
 		return;
 	}
+
+	// Handle response context section
 	if (res.Header?.context) {
+		// Extract and store the session identifier from the response
+		ApiManager.getApiManager().setSessionInfo({ session: res.Header.context.session });
+
 		// Extract used quota from response
 		const responseUsedQuota =
 			res.Header.context?.refresh?.mbx?.[0]?.s ??
@@ -134,22 +138,18 @@ const handleResponse = <R extends Record<string, unknown>>(
 /**
  * @deprecated Use soapFetchV2 instead
  */
-export const getSoapFetch =
-	(app: string) =>
-	<Request, Response extends Record<string, unknown>>(
-		api: string,
-		body: Request,
-		otherAccount?: string,
-		signal?: AbortSignal
-	): Promise<Response> =>
-		soapFetch<Request, Response>(api, body, otherAccount, signal)
-			// TODO proper error handling
-			.then((res: RawSoapResponse<Response>) => handleResponse(api, res))
-			.catch((e) => {
-				// TODO DISCUSS IF WE CAN TOTALLY REMOVE REPORTING
-				report(app)(e);
-				throw e;
-			}) as Promise<Response>;
+export const legacySoapFetch = <Request, Response extends Record<string, unknown>>(
+	api: string,
+	body: Request,
+	otherAccount?: string,
+	signal?: AbortSignal
+): Promise<Response> =>
+	soapFetch<Request, Response>(api, body, otherAccount, signal)
+		// TODO proper error handling
+		.then((res: RawSoapResponse<Response>) => handleResponse(api, res))
+		.catch((e) => {
+			throw e;
+		}) as Promise<Response>;
 
 export const soapFetchV2 = async <Request, Response extends Record<string, unknown>>(
 	api: string,
@@ -166,23 +166,21 @@ export const soapFetchV2 = async <Request, Response extends Record<string, unkno
 /**
  * @deprecated Use soapFetchV2 instead
  */
-export const getXmlSoapFetch =
-	(app: string) =>
-	<Request, Response extends Record<string, unknown>>(
-		api: string,
-		body: Request,
-		otherAccount?: string
-	): Promise<Response> => {
-		const { sessionInfo } = ApiManager.getApiManager();
-		const xmlSessionTag = composeSessionTag();
-		const xmlAccountTag = composeAccountTag(otherAccount);
+export const legacyXmlSoapFetch = <Request, Response extends Record<string, unknown>>(
+	api: string,
+	body: Request,
+	otherAccount?: string
+): Promise<Response> => {
+	const { sessionInfo } = ApiManager.getApiManager();
+	const xmlSessionTag = composeSessionTag();
+	const xmlAccountTag = composeAccountTag(otherAccount);
 
-		return fetch(`/service/soap/${api}Request`, {
-			method: 'POST',
-			headers: {
-				'content-type': 'application/soap+xml'
-			},
-			body: `<?xml version="1.0" encoding="utf-8"?>
+	return fetch(`/service/soap/${api}Request`, {
+		method: 'POST',
+		headers: {
+			'content-type': 'application/soap+xml'
+		},
+		body: `<?xml version="1.0" encoding="utf-8"?>
 		<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
 			<soap:Header>
 				<context xmlns="urn:zimbra">
@@ -194,11 +192,10 @@ export const getXmlSoapFetch =
 			</soap:Header>
 			<soap:Body>${body}</soap:Body>
 		</soap:Envelope>`
-		}) // TODO proper error handling
-			.then((res) => res?.json())
-			.then((res: RawSoapResponse<Response>) => handleResponse(api, res))
-			.catch((e) => {
-				report(app)(e);
-				throw e;
-			}) as Promise<Response>;
-	};
+	}) // TODO proper error handling
+		.then((res) => res?.json())
+		.then((res: RawSoapResponse<Response>) => handleResponse(api, res))
+		.catch((e) => {
+			throw e;
+		}) as Promise<Response>;
+};

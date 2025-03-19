@@ -7,7 +7,7 @@
 type ApiManagerSessionInfo = {
 	accountId?: string;
 	accountName?: string;
-	sessionId?: string;
+	session?: { id: number; _content: number };
 	carbonioVersion?: string;
 };
 
@@ -20,6 +20,10 @@ export class ApiManager {
 	}
 
 	sessionInfo: ApiManagerSessionInfo;
+
+	setSessionInfo(sessionInfo: Partial<ApiManagerSessionInfo>): void {
+		this.sessionInfo = { ...this.sessionInfo, ...sessionInfo };
+	}
 
 	constructor() {
 		this.sessionInfo = {};
