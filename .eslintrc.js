@@ -8,5 +8,15 @@
 const baseConfig = require('./node_modules/@zextras/carbonio-ui-configs/rules/eslint-base');
 
 module.exports = {
-	...baseConfig
+	...baseConfig,
+	plugins: [...baseConfig.plugins, 'notice'],
+	rules: {
+		...baseConfig.rules,
+		'notice/notice': [
+			'error',
+			{
+				templateFile: '.reuse/template.js'
+			}
+		]
+	}
 };
