@@ -16,7 +16,7 @@ describe('ApiManager', () => {
 
 	it('initializes sessionInfo as an empty object', () => {
 		const apiManager = new ApiManager();
-		expect(apiManager.sessionInfo).toEqual({});
+		expect(apiManager.getSessionInfo()).toEqual({});
 	});
 
 	it('creates a new ApiManager instance if none exists', () => {
