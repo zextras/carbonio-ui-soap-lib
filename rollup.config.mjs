@@ -26,10 +26,10 @@ export default {
 		}
 	],
 	plugins: [
-		commonjs(),
 		nodeResolve({
 			extensions: ['.mjs', '.js', '.json', '.node', '.ts', '.tsx', '.jsx']
 		}),
+		commonjs(),
 		babel({
 			babelHelpers: 'runtime',
 			extensions: ['.js', '.jsx', '.ts', '.tsx'],
