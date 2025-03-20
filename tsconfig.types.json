@@ -1,9 +1,9 @@
 {
 	"extends": "@zextras/carbonio-ui-configs/rules/tsconfig.lib.json",
-	"files": ["src/types/index.ts"],
+	"files": ["src/index.ts"],
 	"exclude": ["src/**/*.test.*", "node_modules", "dist"],
 	"compilerOptions": {
-		"outDir": "./dist",
+		"declarationDir": "./dist/types",
 		"types": [
 			"./src/types/globals.d.ts",
 			"node"

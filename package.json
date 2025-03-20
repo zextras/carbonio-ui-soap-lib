@@ -1,14 +1,24 @@
 {
-	"name": "carbonio-mailbox-api-ui",
+	"name": "@zextras/carbonio-mailbox-api-ui",
 	"version": "0.0.0",
 	"description": "Mailbox API frontend layer",
+	"type": "commonjs",
+	"types": "./dist/types/index.d.ts",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
+			"types": "./dist/types/index.d.ts",
 			"import": "./dist/bundle.mjs",
 			"require": "./dist/bundle.cjs"
 		}
 	},
+	"files": [
+		"README.md",
+		"dist",
+		"COPYING",
+		"LICENSE",
+		"THIRDPARTIES",
+		"CHANGELOG.md"
+	],
 	"scripts": {
 		"clean": "rm -rf dist",
 		"build": "npm run build:js && npm run build:types",
@@ -18,7 +28,7 @@
 		"prettify": "prettier --write src",
 		"prepare": "husky",
 		"type-check": "tsc --noEmit",
-		"packTo": "npm pack --pack-destination $PKG_PATH && cd $PKG_PATH && npm i carbonio-mailbox-api-ui-$npm_package_version.tgz"
+		"packTo": "npm pack --pack-destination $PKG_PATH && cd $PKG_PATH && npm i zextras-carbonio-mailbox-api-ui-$npm_package_version.tgz"
 	},
 	"repository": {
 		"type": "git",

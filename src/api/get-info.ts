@@ -9,17 +9,46 @@ import { JSNS } from '../constants';
 import { legacySoapFetch } from '../fetch/fetch';
 import { GetInfoResponse } from '../types/network';
 import { SoapBody } from '../types/network/soap';
+import { ValueOf } from '../types/typeUtils';
 
-type GetInfoParams = {
+export type GetInfoRequest = {
 	rights?: string;
 	sections?: string;
 };
 
-export const getInfo = ({ rights, sections }: GetInfoParams): Promise<GetInfoResponse> =>
-	legacySoapFetch<SoapBody<GetInfoParams>, GetInfoResponse>('GetInfo', {
+export const GET_INFO_RIGHTS = {
+	sendAs: 'sendAs',
+	sendAsDistList: 'sendAsDistList',
+	viewFreeBusy: 'viewFreeBusy',
+	sendOnBehalfOf: 'sendOnBehalfOf',
+	sendOnBehalfOfDistList: 'sendOnBehalfOfDistList'
+};
+
+export const GET_INFO_SECTIONS = {
+	mbox: 'mbox',
+	prefs: 'prefs',
+	attrs: 'attrs',
+	zimlets: 'zimlets',
+	props: 'props',
+	idents: 'idents',
+	sigs: 'sigs',
+	dsrcs: 'dsrcs',
+	children: 'children'
+};
+
+type GetInfoParams = {
+	rights?: Array<ValueOf<typeof GET_INFO_RIGHTS>>;
+	sections?: Array<ValueOf<typeof GET_INFO_SECTIONS>>;
+};
+
+export const getInfo = ({ rights, sections }: GetInfoParams = {}): Promise<GetInfoResponse> => {
+	const rightsList = rights && rights.join(',');
+	const sectionsList = sections && sections.join(',');
+
+	return legacySoapFetch<SoapBody<GetInfoRequest>, GetInfoResponse>('GetInfo', {
 		_jsns: JSNS.account,
-		rights,
-		sections
+		rights: rightsList,
+		sections: sectionsList
 	}).then((res: GetInfoResponse) => {
 		if (res) {
 			const { id, name, version } = res;
@@ -32,3 +61,4 @@ export const getInfo = ({ rights, sections }: GetInfoParams): Promise<GetInfoRes
 
 		return res;
 	});
+};
