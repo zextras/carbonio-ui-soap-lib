@@ -8,6 +8,7 @@ export * from './fetch/fetch';
 export * from './fetch/fetch-utils';
 export * from './api/get-info';
 export * from './api/fetch-locale';
+export * from './customEvent/custumEventDispatcher';
 
 export type * from './types/account';
 export type * from './types/network/soap';
