@@ -11,11 +11,6 @@ import { GetInfoResponse } from '../types/network';
 import { SoapBody } from '../types/network/soap';
 import { ValueOf } from '../types/typeUtils';
 
-export type GetInfoRequest = {
-	rights?: string;
-	sections?: string;
-};
-
 export const GET_INFO_RIGHTS = {
 	sendAs: 'sendAs',
 	sendAsDistList: 'sendAsDistList',
@@ -39,6 +34,11 @@ export const GET_INFO_SECTIONS = {
 type GetInfoParams = {
 	rights?: Array<ValueOf<typeof GET_INFO_RIGHTS>>;
 	sections?: Array<ValueOf<typeof GET_INFO_SECTIONS>>;
+};
+
+type GetInfoRequest = {
+	rights?: string;
+	sections?: string;
 };
 
 export const getInfo = ({ rights, sections }: GetInfoParams = {}): Promise<GetInfoResponse> => {
