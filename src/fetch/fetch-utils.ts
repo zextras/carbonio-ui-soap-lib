@@ -9,16 +9,7 @@ import { userAgent } from './user-agent';
 // import type { Account } from '../types/account';
 import { ApiManager } from '../ApiManager';
 import { JSNS } from '../constants';
-import type { RawSoapResponse, SoapBody } from '../types/network';
-
-export type NoOpRequest = SoapBody<{
-	limitToOneBlocked?: 0 | 1;
-	wait?: 0 | 1;
-}>;
-
-export type NoOpResponse = SoapBody<{
-	waitDisallowed?: boolean;
-}>;
+import type { RawSoapResponse } from '../types/network';
 
 /**
  * Polling interval to use if the long polling delay

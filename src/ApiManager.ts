@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { PollingManager } from './polling/PollingManager';
+
 type ApiManagerSessionInfo = {
 	accountId?: string;
 	accountName?: string;
@@ -21,6 +23,8 @@ export class ApiManager {
 
 	private sessionInfo: ApiManagerSessionInfo;
 
+	private pollingManager: PollingManager | undefined;
+
 	getSessionInfo(): ApiManagerSessionInfo {
 		return this.sessionInfo;
 	}
@@ -29,8 +33,15 @@ export class ApiManager {
 		this.sessionInfo = { ...this.sessionInfo, ...sessionInfo };
 	}
 
+	setPollingInterval(intervalConfig: string): void {
+		if (!this.pollingManager) {
+			this.pollingManager = new PollingManager();
+		}
+
+		this.pollingManager.setConfiguration(intervalConfig);
+	}
+
 	constructor() {
 		this.sessionInfo = {};
-		// TODO INIT POLLING
 	}
 }
