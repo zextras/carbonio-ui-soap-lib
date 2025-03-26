@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { SoapContext } from '../types/network';
+
 export const ApiEvents = {
 	UserQuota: 'UserQuotaEvent',
 	Notify: 'NotifyEvent',
@@ -13,23 +15,21 @@ export const ApiEvents = {
 export type UserQuotaEvent = {
 	name: typeof ApiEvents.UserQuota;
 	payload: {
-		quota: number
-	}
-}
+		quota: number;
+	};
+};
 
 export type NotifyEvent = {
-	name: typeof ApiEvents.Notify,
-	payload: {
-		quota: number
-	}
-}
+	name: typeof ApiEvents.Notify;
+	payload: SoapContext['notify'];
+};
 
 export type AuthErrorEvent = {
-	name: typeof ApiEvents.AuthError,
+	name: typeof ApiEvents.AuthError;
 	payload: {
-		error: 'NOT_AUTHENTICATED'
-	}
-}
+		error: 'NOT_AUTHENTICATED';
+	};
+};
 
 type ApiEvent = UserQuotaEvent | NotifyEvent | AuthErrorEvent;
 
@@ -41,8 +41,8 @@ export const dispatchUserQuotaEvent = (quota: number): void => {
 	dispatchCustomEvent({ name: ApiEvents.UserQuota, payload: { quota } });
 };
 
-export const dispatchNotifyEvent = (quota: number): void => {
-	dispatchCustomEvent({ name: ApiEvents.Notify, payload: { quota } });
+export const dispatchNotifyEvent = (notifications: SoapContext['notify']): void => {
+	dispatchCustomEvent({ name: ApiEvents.Notify, payload: notifications });
 };
 
 export const dispatchAuthErrorEvent = (error: 'NOT_AUTHENTICATED'): void => {

@@ -10,6 +10,7 @@ export * from './api/api';
 export * from './fetch/fetch';
 export * from './fetch/fetch-utils';
 export * from './customEvent/custumEventDispatcher';
+export { ApiManager } from './ApiManager';
 
 // Export types
 export type * from './types/account';

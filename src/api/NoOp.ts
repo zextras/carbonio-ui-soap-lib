@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import { JSNS } from '../constants';
-import { soapFetch } from '../fetch/fetch-utils';
+import { soapFetchV2 } from '../fetch/fetch';
 import type { SoapBody } from '../types/network';
 
 export type NoOpRequest = SoapBody<{
-	limitToOneBlocked?: boolean;
-	wait?: boolean;
+	limitToOneBlocked?: 0 | 1;
+	wait?: 0 | 1;
 }>;
 
 export type NoOpResponse = SoapBody<{
@@ -22,9 +22,12 @@ type NoOpParams = {
 };
 
 export const noOp = ({ limitToOneBlocked, wait }: NoOpParams): void => {
-	soapFetch<NoOpRequest, NoOpResponse>('NoOp', {
+	const requestsParams: NoOpRequest = {
 		_jsns: JSNS.mail,
-		limitToOneBlocked,
-		wait
-	});
+		...(limitToOneBlocked !== undefined
+			? { limitToOneBlocked: limitToOneBlocked ? 1 : 0 }
+			: undefined),
+		...(wait !== undefined ? { wait: wait ? 1 : 0 } : undefined)
+	};
+	soapFetchV2<NoOpRequest, NoOpResponse>('NoOp', requestsParams);
 };

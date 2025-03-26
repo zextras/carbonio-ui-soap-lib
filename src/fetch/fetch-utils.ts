@@ -11,51 +11,6 @@ import { ApiManager } from '../ApiManager';
 import { JSNS } from '../constants';
 import type { RawSoapResponse } from '../types/network';
 
-/**
- * Polling interval to use if the long polling delay
- * is not allowed for the user
- */
-const POLLING_NOWAIT_INTERVAL = 10_000;
-
-/**
- * Polling interval to use if a previous request failed
- * with a 500 error
- */
-const POLLING_RETRY_INTERVAL = 60_000;
-
-const LONG_POLLING_MARKER_VALUE = 500;
-
-// export const parsePollingInterval = (settings: AccountSettings): number => {
-// 	const pollingPref = settings.prefs?.zimbraPrefMailPollingInterval ?? '';
-// 	const [value, durationUnit] = pollingPref.split(/([a-z]+)/g);
-// 	const pollingValue = parseInt(value, 10);
-// 	if (Number.isNaN(pollingValue)) {
-// 		return POLLING_INVALID_DURATION;
-// 	}
-//
-// 	if (
-// 		pollingValue === LONG_POLLING_MARKER_VALUE &&
-// 		(durationUnit === undefined || durationUnit === 'ms' || durationUnit === 's')
-// 	) {
-// 		return LONG_POLLING_MARKER_VALUE;
-// 	}
-// 	switch (durationUnit) {
-// 		case 'ms':
-// 			return pollingValue;
-// 		case undefined:
-// 		case 's':
-// 			return pollingValue * 1000;
-// 		case 'm':
-// 			return pollingValue * 60 * 1000;
-// 		case 'h':
-// 			return pollingValue * 60 * 60 * 1000;
-// 		case 'd':
-// 			return pollingValue * 24 * 60 * 60 * 1000;
-// 		default:
-// 			return POLLING_INVALID_DURATION;
-// 	}
-// };
-
 const getFinalAccount = (account?: string): { by: string; _content: string } | undefined => {
 	const sessionInfo = ApiManager.getApiManager().getSessionInfo();
 

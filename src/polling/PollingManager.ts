@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { noOp } from '../api/NoOp';
+
 export class PollingManager {
 	/**
 	 * Polling interval to use if the long polling delay
@@ -106,13 +108,14 @@ export class PollingManager {
 			clearTimeout(this.timeoutHandle);
 		}
 		this.timeoutHandle = setTimeout(() => {
-			// Do something
+			noOp({ limitToOneBlocked: this.isLongPolling, wait: this.isLongPolling });
 		}, this.interval);
 	}
 
 	public stopPolling(): void {
-		if (this.timeoutHandle) {
-			clearTimeout(this.timeoutHandle);
+		if (!this.timeoutHandle) {
+			return;
 		}
+		clearTimeout(this.timeoutHandle);
 	}
 }

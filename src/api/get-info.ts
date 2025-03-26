@@ -51,12 +51,22 @@ export const getInfo = ({ rights, sections }: GetInfoParams = {}): Promise<GetIn
 		sections: sectionsList
 	}).then((res: GetInfoResponse) => {
 		if (res) {
-			const { id, name, version } = res;
+			const {
+				id,
+				name,
+				version,
+				prefs: {
+					_attrs: { zimbraPrefMailPollingInterval: pollingInterval }
+				}
+			} = res;
 			ApiManager.getApiManager().setSessionInfo({
 				accountId: id,
 				accountName: name,
 				carbonioVersion: version
 			});
+			if (pollingInterval) {
+				ApiManager.getApiManager().setPollingInterval(pollingInterval);
+			}
 		}
 
 		return res;

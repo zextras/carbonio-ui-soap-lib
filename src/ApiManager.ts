@@ -11,6 +11,7 @@ type ApiManagerSessionInfo = {
 	accountName?: string;
 	session?: { id: number; _content: number };
 	carbonioVersion?: string;
+	notificationsSequence?: number;
 };
 
 export class ApiManager {
@@ -39,6 +40,15 @@ export class ApiManager {
 		}
 
 		this.pollingManager.setConfiguration(intervalConfig);
+		this.pollingManager.startPolling();
+	}
+
+	resetPolling(): void {
+		this.pollingManager && this.pollingManager.startPolling();
+	}
+
+	stopPolling(): void {
+		this.pollingManager && this.pollingManager.stopPolling();
 	}
 
 	constructor() {

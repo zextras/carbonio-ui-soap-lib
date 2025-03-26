@@ -11,6 +11,7 @@ import { userAgent } from './user-agent';
 import { ApiManager } from '../ApiManager';
 import {
 	dispatchAuthErrorEvent,
+	dispatchNotifyEvent,
 	dispatchUserQuotaEvent
 } from '../customEvent/custumEventDispatcher';
 import type {
@@ -69,9 +70,7 @@ const normalizeContext = ({ notify: rawNotify, ...context }: RawSoapContext): So
 };
 
 const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
-	// TODO IMPLEMENT POLLING
-	// const { noOpTimeout } = useNetworkStore.getState();
-	// clearTimeout(noOpTimeout);
+	ApiManager.getApiManager().stopPolling();
 	if (res.Body.Fault) {
 		if (
 			find(
@@ -95,9 +94,14 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 	// Handle response context section
 	if (res.Header?.context) {
 		// Extract and store the session identifier from the response
-		ApiManager.getApiManager().setSessionInfo({ session: res.Header.context.session });
+		const { session } = res.Header.context;
 
-		// Extract used quota from response
+		const notificationsSequence = res.Header.context.notify?.[0]?.seq;
+
+		// Store the session information
+		ApiManager.getApiManager().setSessionInfo({ session, notificationsSequence });
+
+		// Extract and notify used quota from response
 		const responseUsedQuota =
 			res.Header.context?.refresh?.mbx?.[0]?.s ??
 			res.Header.context?.notify?.[0]?.modified?.mbx?.[0]?.s;
@@ -105,23 +109,13 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 			dispatchUserQuotaEvent(responseUsedQuota);
 		}
 
-		const _context = normalizeContext(res.Header.context);
-		// TODO IMPLEMENT NOTIFY MANAGEMENT
-		// const seq = maxBy(_context.notify, 'seq')?.seq ?? 0;
+		// Extract and notify the "notify" section from the response
+		const headerContext = normalizeContext(res.Header.context);
+		if (headerContext.notify && headerContext.notify.length > 0) {
+			dispatchNotifyEvent(headerContext.notify);
+		}
 
-		// TODO MOVE STORE QUOTA MANAGEMENT OUTSIDE
-		// useAccountStore.setState({
-		// 	usedQuota: responseUsedQuota ?? usedQuota
-		// });
-
-		// TODO IMPLEMENT POLLING AND NOTIFY
-		// const nextPollingInterval = getPollingInterval(res);
-		// useNetworkStore.setState({
-		// 	noOpTimeout: setTimeout(() => fetchNoOp(), nextPollingInterval),
-		// 	pollingInterval: nextPollingInterval,
-		// 	seq,
-		// 	..._context
-		// });
+		ApiManager.getApiManager().resetPolling();
 	}
 };
 
