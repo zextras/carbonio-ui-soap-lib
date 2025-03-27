@@ -5,6 +5,7 @@
  */
 
 import { PollingManager } from './polling/PollingManager';
+import { SoapRefresh } from './types/network';
 
 type ApiManagerSessionInfo = {
 	accountId?: string;
@@ -12,6 +13,11 @@ type ApiManagerSessionInfo = {
 	session?: { id: number; _content: number };
 	carbonioVersion?: string;
 	notificationsSequence?: number;
+	/**
+	 * TODO remove ASAP
+	 * @deprecated
+	 */
+	legacyRefreshInfo: SoapRefresh;
 };
 
 export class ApiManager {
@@ -52,6 +58,8 @@ export class ApiManager {
 	}
 
 	constructor() {
-		this.sessionInfo = {};
+		this.sessionInfo = {
+			legacyRefreshInfo: {}
+		};
 	}
 }

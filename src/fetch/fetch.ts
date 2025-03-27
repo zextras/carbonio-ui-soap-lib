@@ -12,6 +12,7 @@ import { ApiManager } from '../ApiManager';
 import {
 	dispatchAuthErrorEvent,
 	dispatchNotifyEvent,
+	dispatchRefreshEvent,
 	dispatchUserQuotaEvent
 } from '../customEvent/custumEventDispatcher';
 import type {
@@ -93,13 +94,13 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 
 	// Handle response context section
 	if (res.Header?.context) {
-		// Extract and store the session identifier from the response
+		console.log('### handleResponseV2', res.Header.context);
 		const { session } = res.Header.context;
 
 		const notificationsSequence = res.Header.context.notify?.[0]?.seq;
 
-		// Store the session information
-		ApiManager.getApiManager().setSessionInfo({ session, notificationsSequence });
+		// TODO this was on the old code, but it's not clear where were supposed to be used
+		// const seq = maxBy(_context.notify, 'seq')?.seq ?? 0;
 
 		// Extract and notify used quota from response
 		const responseUsedQuota =
@@ -109,11 +110,25 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 			dispatchUserQuotaEvent(responseUsedQuota);
 		}
 
-		// Extract and notify the "notify" section from the response
 		const headerContext = normalizeContext(res.Header.context);
+
+		// Extract and dispatch the "notify" section from the response
 		if (headerContext.notify && headerContext.notify.length > 0) {
 			dispatchNotifyEvent(headerContext.notify);
 		}
+
+		// Extract and dispatch the "refresh" section from the response
+		if (headerContext.refresh) {
+			dispatchRefreshEvent(headerContext.refresh);
+		}
+
+		// Store the session information
+		ApiManager.getApiManager().setSessionInfo({
+			session,
+			notificationsSequence,
+			// TODO remove ASAP
+			...(headerContext.refresh ? { legacyRefreshInfo: headerContext.refresh } : undefined)
+		});
 
 		ApiManager.getApiManager().resetPolling();
 	}

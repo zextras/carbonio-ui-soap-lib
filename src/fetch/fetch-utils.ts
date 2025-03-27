@@ -41,9 +41,8 @@ export const soapFetch = async <Request, Response extends Record<string, unknown
 	account?: string,
 	signal?: AbortSignal
 ): Promise<RawSoapResponse<Response>> => {
-	const { carbonioVersion, session } = ApiManager.getApiManager().getSessionInfo();
-
-	const notify = [{ seq: 0 }]; // TODO TO BE IMPLEMENTED
+	const { carbonioVersion, session, notificationsSequence } =
+		ApiManager.getApiManager().getSessionInfo();
 
 	const res = await fetch(`/service/soap/${api}Request`, {
 		signal,
@@ -58,9 +57,9 @@ export const soapFetch = async <Request, Response extends Record<string, unknown
 			Header: {
 				context: {
 					_jsns: JSNS.all,
-					notify: notify?.[0]?.seq
+					notify: notificationsSequence
 						? {
-								seq: notify?.[0]?.seq
+								seq: notificationsSequence
 							}
 						: undefined,
 					session: session ?? {},

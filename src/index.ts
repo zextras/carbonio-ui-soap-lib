@@ -11,6 +11,7 @@ export * from './fetch/fetch-utils';
 export * from './customEvent/custumEventDispatcher';
 export { ApiManager } from './ApiManager';
 export { useAppServerUpdates } from './customEvent/useAppServerUpdates';
+export { useAppServerRefresh } from './customEvent/useAppServerRefresh';
 
 // Export types
 export type * from './types/account';

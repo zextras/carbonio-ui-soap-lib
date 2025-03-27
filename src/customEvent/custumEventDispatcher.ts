@@ -9,6 +9,7 @@ import { SoapContext } from '../types/network';
 export const ApiEvents = {
 	UserQuota: 'UserQuotaEvent',
 	Notify: 'NotifyEvent',
+	Refresh: 'RefreshEvent',
 	AuthError: 'AuthErrorEvent'
 } as const;
 
@@ -24,6 +25,11 @@ export type NotifyEvent = {
 	payload: SoapContext['notify'];
 };
 
+export type RefreshEvent = {
+	name: typeof ApiEvents.Refresh;
+	payload: SoapContext['refresh'];
+};
+
 export type AuthErrorEvent = {
 	name: typeof ApiEvents.AuthError;
 	payload: {
@@ -31,7 +37,7 @@ export type AuthErrorEvent = {
 	};
 };
 
-type ApiEvent = UserQuotaEvent | NotifyEvent | AuthErrorEvent;
+type ApiEvent = UserQuotaEvent | NotifyEvent | AuthErrorEvent | RefreshEvent;
 
 const dispatchCustomEvent = (event: ApiEvent): void => {
 	window.dispatchEvent(new CustomEvent(event.name, { detail: event.payload }));
@@ -43,6 +49,10 @@ export const dispatchUserQuotaEvent = (quota: number): void => {
 
 export const dispatchNotifyEvent = (notifications: SoapContext['notify']): void => {
 	dispatchCustomEvent({ name: ApiEvents.Notify, payload: notifications });
+};
+
+export const dispatchRefreshEvent = (refresh: SoapContext['refresh']): void => {
+	dispatchCustomEvent({ name: ApiEvents.Refresh, payload: refresh });
 };
 
 export const dispatchAuthErrorEvent = (error: 'NOT_AUTHENTICATED'): void => {
