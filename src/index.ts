@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-// Functions
-
+// Functions, classes and hooks
 export * from './api/api';
 export * from './fetch/fetch';
 export * from './fetch/fetch-utils';
 export * from './customEvent/custumEventDispatcher';
 export { ApiManager } from './ApiManager';
+export { useAppServerUpdates } from './customEvent/useAppServerUpdates';
 
 // Export types
 export type * from './types/account';
