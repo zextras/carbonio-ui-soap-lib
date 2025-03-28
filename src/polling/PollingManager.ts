@@ -117,5 +117,6 @@ export class PollingManager {
 			return;
 		}
 		clearTimeout(this.timeoutHandle);
+		this.timeoutHandle = undefined;
 	}
 }

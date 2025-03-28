@@ -74,26 +74,3 @@ export const soapFetch = async <Request, Response extends Record<string, unknown
 	});
 	return res.json();
 };
-
-// /**
-//  * Return the polling interval for the next NoOp request.
-//  * The interval length depends on the user settings, but it can be
-//  * overridden by the server response/errors
-//  */
-// export const getPollingInterval = (
-// 	res: RawSoapResponse<{
-// 		NoOpResponse?: NoOpResponse;
-// 	}>
-// ): number => {
-// 	const { settings } = useAccountStore.getState();
-// 	const waitDisallowed =
-// 		res.Body && !('Fault' in res.Body) && res.Body.NoOpResponse?.waitDisallowed;
-// 	const fault = res.Body && 'Fault' in res.Body && res.Body.Fault;
-// 	if (fault) {
-// 		return POLLING_RETRY_INTERVAL;
-// 	}
-// 	if (waitDisallowed) {
-// 		return POLLING_NOWAIT_INTERVAL;
-// 	}
-// 	return parsePollingInterval(settings);
-// };

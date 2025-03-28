@@ -15,7 +15,8 @@ import {
 	dispatchRefreshEvent,
 	dispatchUserQuotaEvent
 } from '../customEvent/custumEventDispatcher';
-import type {
+import {PollingManager} from "../polling/PollingManager";
+import {
 	ErrorSoapBodyResponse,
 	ErrorSoapResponse,
 	RawSoapContext,
@@ -24,17 +25,6 @@ import type {
 	SoapContext,
 	SoapNotify
 } from '../types/network';
-
-// TODO IMPLEMENT POLLING
-// const fetchNoOp = (): void => {
-// 	// eslint-disable-next-line @typescript-eslint/no-use-before-define
-// 	getSoapFetch(SHELL_APP_ID)<NoOpRequest, NoOpResponse>(
-// 		'NoOp',
-// 		useNetworkStore.getState().pollingInterval === 500
-// 			? { _jsns: JSNS.mail, limitToOneBlocked: 1, wait: 1 }
-// 			: { _jsns: JSNS.mail }
-// 	);
-// };
 
 const composeAccountTag = (otherAccount?: string): string => {
 	if (otherAccount) {
@@ -70,8 +60,19 @@ const normalizeContext = ({ notify: rawNotify, ...context }: RawSoapContext): So
 	return normalizedContext;
 };
 
+// const isNoOpResponse = (res: RawSuccessSoapResponse<unknown>): res is RawSuccessSoapResponse<{NoOpResponse: NoOpResponse}> => {
+// 	const x: RawSuccessSoapResponse<{NoOpResponse: NoOpResponse}>;
+// 	x.Body.NoOpResponse.waitDisallowed;
+// 	if ('Fault' in res) {
+// 		'NoOpResponse' in (res.Body as RawSuccessSoapResponse<NoOpResponse>);
+// 	}
+// 	return true;
+// };
+
 const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
 	ApiManager.getApiManager().stopPolling();
+
+	// In case of application error
 	if (res.Body.Fault) {
 		if (
 			find(
@@ -89,7 +90,10 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 			)
 		);
 
-		return;
+		// Postpone the polling interval
+		ApiManager.getApiManager().setPollingInterval(`${PollingManager.POLLING_RETRY_INTERVAL}`);
+
+		// TODO could make sense to return here?
 	}
 
 	// Handle response context section
@@ -129,9 +133,19 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 			// TODO remove ASAP
 			...(headerContext.refresh ? { legacyRefreshInfo: headerContext.refresh } : undefined)
 		});
-
-		ApiManager.getApiManager().resetPolling();
 	}
+
+	// Analyze the response and decide if the polling interval should be changed
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-expect-error
+	const waitDisallowed = res.Body && ('NoOpResponse' in res.Body) && res.Body.NoOpResponse.waitDisallowed;
+	console.log('### handleResponseV2 - waitDisallowed', waitDisallowed);
+	if (waitDisallowed) {
+		ApiManager.getApiManager().setPollingInterval(`${PollingManager.POLLING_NOWAIT_INTERVAL}`);
+	}
+
+	// Reset the polling
+	ApiManager.getApiManager().resetPolling();
 };
 
 const handleResponse = <R extends Record<string, unknown>>(
