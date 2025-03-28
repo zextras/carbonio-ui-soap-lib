@@ -66,7 +66,7 @@ pipeline {
                     echo "isDevelBranch: ${isDevelBranch}"
                     isPullRequest = "${BRANCH_NAME}" ==~ /PR-\d+/
                     echo "isPullRequest: ${isPullRequest}"
-                    isSonarQubeEnabled = params.RUN_SONARQUBE == true && (isPullRequest || isDevelBranch || isReleaseBranch)
+                    isSonarQubeEnabled = params.RUN_SONARQUBE == true
                     echo "isSonarQubeEnabled: ${isSonarQubeEnabled}"
                     branchName = env.CHANGE_BRANCH
                     echo "branchName: ${branchName}"
