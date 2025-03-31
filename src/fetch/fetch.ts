@@ -60,46 +60,36 @@ const normalizeContext = ({ notify: rawNotify, ...context }: RawSoapContext): So
 	return normalizedContext;
 };
 
-// const isNoOpResponse = (res: RawSuccessSoapResponse<unknown>): res is RawSuccessSoapResponse<{NoOpResponse: NoOpResponse}> => {
-// 	const x: RawSuccessSoapResponse<{NoOpResponse: NoOpResponse}>;
-// 	x.Body.NoOpResponse.waitDisallowed;
-// 	if ('Fault' in res) {
-// 		'NoOpResponse' in (res.Body as RawSuccessSoapResponse<NoOpResponse>);
-// 	}
-// 	return true;
-// };
-
-const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
-	ApiManager.getApiManager().stopPolling();
-
-	// In case of application error
-	if (res.Body.Fault) {
-		if (
-			find(
-				['service.AUTH_REQUIRED', 'service.AUTH_EXPIRED'],
-				(code) => code === (<ErrorSoapResponse>res).Body.Fault.Detail?.Error?.Code
-			)
-		) {
-			dispatchAuthErrorEvent('NOT_AUTHENTICATED');
-		}
-		console.error(
-			new Error(
-				`${(<ErrorSoapResponse>res).Body.Fault.Detail?.Error?.Code}: ${
-					(<ErrorSoapResponse>res).Body.Fault.Reason?.Text
-				}`
-			)
-		);
-
-		// Postpone the polling interval
-		ApiManager.getApiManager().setPollingInterval(`${PollingManager.POLLING_RETRY_INTERVAL}`);
-
-		// TODO could make sense to return here?
+const handleFaultResponse = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
+	if ('Fault' in res.Body) {
+		return;
 	}
 
-	// Handle response context section
+	if (
+		find(
+			['service.AUTH_REQUIRED', 'service.AUTH_EXPIRED'],
+			(code) => code === (<ErrorSoapResponse>res).Body.Fault.Detail?.Error?.Code
+		)
+	) {
+		dispatchAuthErrorEvent('NOT_AUTHENTICATED');
+	}
+	console.error(
+		new Error(
+			`${(<ErrorSoapResponse>res).Body.Fault.Detail?.Error?.Code}: ${
+				(<ErrorSoapResponse>res).Body.Fault.Reason?.Text
+			}`
+		)
+	);
+
+	// Postpone the polling interval
+	ApiManager.getApiManager().setPollingInterval(`${PollingManager.POLLING_RETRY_INTERVAL}`);
+
+};
+
+const handleResponseContext = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
 	if (res.Header?.context) {
 		console.log('### handleResponseV2', res.Header.context);
-		const { session } = res.Header.context;
+		const {session} = res.Header.context;
 
 		const notificationsSequence = res.Header.context.notify?.[0]?.seq;
 
@@ -131,13 +121,23 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 			session,
 			notificationsSequence,
 			// TODO remove ASAP
-			...(headerContext.refresh ? { legacyRefreshInfo: headerContext.refresh } : undefined)
+			...(headerContext.refresh ? {legacyRefreshInfo: headerContext.refresh} : undefined)
 		});
 	}
+};
+
+const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
+	ApiManager.getApiManager().stopPolling();
+
+	// In case of application error
+	handleFaultResponse(res);
+
+	// Handle response context section
+	handleResponseContext(res);
 
 	// Analyze the response and decide if the polling interval should be changed
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
+	// @ts-ignore
 	const waitDisallowed = res.Body && ('NoOpResponse' in res.Body) && res.Body.NoOpResponse.waitDisallowed;
 	console.log('### handleResponseV2 - waitDisallowed', waitDisallowed);
 	if (waitDisallowed) {
