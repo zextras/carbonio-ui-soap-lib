@@ -9,22 +9,59 @@ import { find, map } from 'lodash';
 import { soapFetch } from './fetch-utils';
 import { userAgent } from './user-agent';
 import { ApiManager } from '../ApiManager';
+import {JSNS} from "../constants";
 import {
 	dispatchAuthErrorEvent,
 	dispatchNotifyEvent,
 	dispatchRefreshEvent,
 	dispatchUserQuotaEvent
 } from '../customEvent/custumEventDispatcher';
-import {PollingManager} from "../polling/PollingManager";
+import {getPollingIntervalConfig} from "../polling/PollingInterval";
 import {
 	ErrorSoapBodyResponse,
 	ErrorSoapResponse,
 	RawSoapContext,
 	RawSoapNotify,
-	RawSoapResponse,
+	RawSoapResponse, type SoapBody,
 	SoapContext,
 	SoapNotify
 } from '../types/network';
+
+export type NoOpRequest = SoapBody<{
+	limitToOneBlocked?: 0 | 1;
+	wait?: 0 | 1;
+}>;
+
+export type NoOpResponse = SoapBody<{
+	waitDisallowed?: boolean;
+}>;
+
+type NoOpParams = {
+	limitToOneBlocked?: boolean;
+	wait?: boolean;
+};
+
+export const noOp = ({ limitToOneBlocked, wait }: NoOpParams = {}): void => {
+	const requestsParams: NoOpRequest = {
+		_jsns: JSNS.mail,
+		...(limitToOneBlocked !== undefined
+			? { limitToOneBlocked: limitToOneBlocked ? 1 : 0 }
+			: undefined),
+		...(wait !== undefined ? { wait: wait ? 1 : 0 } : undefined)
+	};
+	// Kept for backward compatibility
+	// eslint-disable-next-line @typescript-eslint/no-use-before-define
+	legacySoapFetch<NoOpRequest, NoOpResponse>('NoOp', requestsParams);
+};
+
+export const shortPollingNoOp = (): void => {
+	noOp();
+};
+
+export const longPollingNoOp = (): void => {
+	noOp({wait: true, limitToOneBlocked: true});
+};
+
 
 const composeAccountTag = (otherAccount?: string): string => {
 	if (otherAccount) {
@@ -61,7 +98,7 @@ const normalizeContext = ({ notify: rawNotify, ...context }: RawSoapContext): So
 };
 
 const handleFaultResponse = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
-	if ('Fault' in res.Body) {
+	if (!('Fault' in res.Body)) {
 		return;
 	}
 
@@ -80,10 +117,6 @@ const handleFaultResponse = <R extends Record<string, unknown>>(res: RawSoapResp
 			}`
 		)
 	);
-
-	// Postpone the polling interval
-	ApiManager.getApiManager().setPollingInterval(`${PollingManager.POLLING_RETRY_INTERVAL}`);
-
 };
 
 const handleResponseContext = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
@@ -135,17 +168,10 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 	// Handle response context section
 	handleResponseContext(res);
 
-	// Analyze the response and decide if the polling interval should be changed
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-	const waitDisallowed = res.Body && ('NoOpResponse' in res.Body) && res.Body.NoOpResponse.waitDisallowed;
-	console.log('### handleResponseV2 - waitDisallowed', waitDisallowed);
-	if (waitDisallowed) {
-		ApiManager.getApiManager().setPollingInterval(`${PollingManager.POLLING_NOWAIT_INTERVAL}`);
-	}
-
-	// Reset the polling
-	ApiManager.getApiManager().resetPolling();
+	// Trigger the next polling
+	const nextPollingConfig = getPollingIntervalConfig(res);
+	const pollingFunction = nextPollingConfig.longPolling ? longPollingNoOp : shortPollingNoOp;
+	ApiManager.getApiManager().resetPolling(pollingFunction, nextPollingConfig.millisInterval);
 };
 
 const handleResponse = <R extends Record<string, unknown>>(

@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { PollingManager } from './polling/PollingManager';
 import { SoapRefresh } from './types/network';
 
 type ApiManagerSessionInfo = {
@@ -13,6 +12,8 @@ type ApiManagerSessionInfo = {
 	session?: { id: number; _content: number };
 	carbonioVersion?: string;
 	notificationsSequence?: number;
+	pollingPreference?: string;
+	pollingTimeoutHandler?: NodeJS.Timeout;
 	/**
 	 * TODO remove ASAP
 	 * @deprecated
@@ -30,7 +31,6 @@ export class ApiManager {
 
 	private sessionInfo: ApiManagerSessionInfo;
 
-	private pollingManager: PollingManager | undefined;
 
 	getSessionInfo(): ApiManagerSessionInfo {
 		return this.sessionInfo;
@@ -40,21 +40,23 @@ export class ApiManager {
 		this.sessionInfo = { ...this.sessionInfo, ...sessionInfo };
 	}
 
-	setPollingInterval(intervalConfig: string): void {
-		if (!this.pollingManager) {
-			this.pollingManager = new PollingManager();
+	setPollingPreference(pollingPreference: string): void {
+		this.sessionInfo.pollingPreference = pollingPreference;
+	}
+
+	public resetPolling(pollingFunction: () => void, millisTimeout: number): void {
+		if (this.sessionInfo.pollingTimeoutHandler) {
+			clearTimeout(this.sessionInfo.pollingTimeoutHandler);
 		}
-
-		this.pollingManager.setConfiguration(intervalConfig);
-		this.pollingManager.startPolling();
+		this.sessionInfo.pollingTimeoutHandler = setTimeout(pollingFunction, millisTimeout);
 	}
 
-	resetPolling(): void {
-		this.pollingManager && this.pollingManager.startPolling();
-	}
-
-	stopPolling(): void {
-		this.pollingManager && this.pollingManager.stopPolling();
+	public stopPolling(): void {
+		if (!this.sessionInfo.pollingTimeoutHandler) {
+			return;
+		}
+		clearTimeout(this.sessionInfo.pollingTimeoutHandler);
+		this.sessionInfo.pollingTimeoutHandler = undefined;
 	}
 
 	constructor() {

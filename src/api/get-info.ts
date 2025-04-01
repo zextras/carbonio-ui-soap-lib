@@ -65,7 +65,7 @@ export const getInfo = ({ rights, sections }: GetInfoParams = {}): Promise<GetIn
 				carbonioVersion: version
 			});
 			if (pollingInterval) {
-				ApiManager.getApiManager().setPollingInterval(pollingInterval);
+				ApiManager.getApiManager().setPollingPreference(pollingInterval);
 			}
 		}
 
