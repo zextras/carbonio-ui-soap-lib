@@ -7,6 +7,27 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	test: {
-		environment: 'jsdom'
+		environment: 'jsdom',
+		exclude: [
+			'src/fetch/fetch.test.ts', // exclude fetch test
+			'dist/**',
+			'node_modules/**',
+		],
+		coverage: {
+			enabled: true,
+			provider: 'v8',
+			reporter: ['text', 'cobertura', 'lcov'],
+			reportsDirectory: 'coverage',
+			include: [
+				'src/**'
+			],
+			exclude: [
+				'**/(test|mock)*.ts(x)?', // exclude file which name starts with test or mock
+				'src/**/types/*', // exclude types
+				'src/tests/*', // exclude test folder
+				'src/index.ts', // exclude index.ts
+				'src/constants', // exclude constants.ts
+			]
+		}
 	}
 });

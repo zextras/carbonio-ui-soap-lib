@@ -1,27 +1,68 @@
 /*
- * SPDX-FileCopyrightText: 2022 Zextras <https://www.zextras.com>
+ * SPDX-FileCopyrightText: 2023 Zextras <https://www.zextras.com>
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+import type { HttpResponseResolver } from 'msw';
+import { HttpResponse } from 'msw';
 
-import { type RequestHandler, http, HttpResponse } from 'msw';
+import {GetInfoResponse, SoapBody} from "../../../types/network";
 
-import { LOGIN_V3_CONFIG_PATH } from '../constants';
-import { getComponentsJson } from './handlers/components';
-import { endSessionRequest } from './handlers/endSessionRequest';
-import { getGetInfoRequest } from './handlers/getInfoRequest';
-import { getLoginConfig } from './handlers/login-config';
-import { logout } from './handlers/logout';
-import { noOpRequest } from './handlers/noOpRequest';
+const DEFAULT_ID = 'logged-user-id';
+export const LOGGED_USER = {
+	id: DEFAULT_ID,
+	name: 'LoggedUser',
+	prefs: {},
+	attrs: {
+		displayName: 'Logged User'
+	},
+	props: [],
+	identities: {
+		identity: [
+			{
+				name: 'DEFAULT',
+				id: DEFAULT_ID,
+				_attrs: { zimbraPrefIdentityId: DEFAULT_ID, zimbraPrefFromAddressType: 'sendAs' as const }
+			}
+		]
+	}
+};
 
-const handlers: RequestHandler[] = [
-    http.get('/static/iris/components.json', getComponentsJson),
-    http.post('/service/soap/GetInfoRequest', getGetInfoRequest()),
-    http.post('/service/soap/EndSessionRequest', endSessionRequest),
-    http.post('/service/soap/NoOpRequest', noOpRequest),
-    http.get(LOGIN_V3_CONFIG_PATH, getLoginConfig),
-    http.get('/i18n/en.json', () => HttpResponse.json({})),
-    http.get('/logout', logout)
-];
+type GetInfoRequestBody = {
+	GetInfoRequest: SoapBody<{
+		rights: string;
+	}>;
+};
 
-export default handlers;
+type GetInfoResponseBody = {
+	Body: {
+		GetInfoResponse: GetInfoResponse;
+		Fault?: { Detail?: { Error?: { Code?: string; Detail?: string } }; Reason?: { Text: string } };
+	};
+};
+
+export const getGetInfoRequest =
+	(
+		getInfoResponse?: Partial<GetInfoResponse>
+	): HttpResponseResolver<never, GetInfoRequestBody, GetInfoResponseBody> =>
+	() =>
+		HttpResponse.json({
+			Body: {
+				GetInfoResponse: {
+					id: LOGGED_USER.id,
+					name: LOGGED_USER.name,
+					version: '',
+					identities: LOGGED_USER.identities,
+					signatures: { signature: [] },
+					rights: { targets: [] },
+					zimlets: { zimlet: [] },
+					lifetime: 86400000,
+					...getInfoResponse,
+					prefs: { _attrs: { ...LOGGED_USER.prefs, ...getInfoResponse?.prefs?._attrs } },
+					attrs: { _attrs: { ...LOGGED_USER.attrs, ...getInfoResponse?.attrs?._attrs } },
+					props: {
+						prop: { ...LOGGED_USER.props, ...getInfoResponse?.props?.prop }
+					}
+				}
+			}
+		});
