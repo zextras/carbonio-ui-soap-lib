@@ -109,6 +109,7 @@ export const getPollingIntervalConfig = (
         NoOpResponse?: NoOpResponse;
     }>
 ): PollingIntervalConfig => {
+    // Determine the polling interval config based on the server response
     const waitDisallowed =
         res.Body && !('Fault' in res.Body) && res.Body.NoOpResponse?.waitDisallowed;
     const fault = res.Body && 'Fault' in res.Body && res.Body.Fault;
@@ -124,5 +125,7 @@ export const getPollingIntervalConfig = (
             longPolling: false
         };
     }
+
+    // Determine the polling interval config based on user settings
     return getPreferredPollingIntervalConfig();
 };
