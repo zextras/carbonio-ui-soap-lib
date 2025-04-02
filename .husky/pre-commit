@@ -1,4 +1,5 @@
-reuse lint
 npm run lint
 npm run type-check
 npm run prettify
+reuse lint
+npm run test

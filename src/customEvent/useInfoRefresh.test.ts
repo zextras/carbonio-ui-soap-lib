@@ -12,54 +12,81 @@ import { useInfoRefresh } from './useInfoRefresh';
 import { ApiManager } from '../ApiManager';
 import type { SoapRefresh } from '../types/network';
 
-
 describe('useInfoRefresh', () => {
-    it('should initialize with info stored in the ApiManager', () => {
-        const initialRefreshInfo: SoapRefresh = { seq: faker.number.int(), mbx: [{ s: faker.number.int() }] };
-        vi.spyOn(ApiManager.getApiManager(), 'getSessionInfo').mockReturnValue({ legacyRefreshInfo: initialRefreshInfo });
+	it('should initialize with info stored in the ApiManager', () => {
+		const initialRefreshInfo: SoapRefresh = {
+			seq: faker.number.int(),
+			mbx: [{ s: faker.number.int() }]
+		};
+		vi.spyOn(ApiManager.getApiManager(), 'getSessionInfo').mockReturnValue({
+			legacyRefreshInfo: initialRefreshInfo
+		});
 
-        const { result } = renderHook(() => useInfoRefresh());
+		const { result } = renderHook(() => useInfoRefresh());
 
-        expect(result.current).toEqual(initialRefreshInfo);
-    });
+		expect(result.current).toEqual(initialRefreshInfo);
+	});
 
-    it('should update state when InfoRefreshReceive event is dispatched', () => {
-        const initialRefreshInfo: SoapRefresh = { seq: faker.number.int(), mbx: [{ s: faker.number.int() }] };
-        const newRefreshInfo: SoapRefresh = { seq: faker.number.int(), mbx: [{ s: faker.number.int() }] };
-        vi.spyOn(ApiManager.getApiManager(), 'getSessionInfo').mockReturnValue({ legacyRefreshInfo: initialRefreshInfo });
+	it('should update state when InfoRefreshReceive event is dispatched', () => {
+		const initialRefreshInfo: SoapRefresh = {
+			seq: faker.number.int(),
+			mbx: [{ s: faker.number.int() }]
+		};
+		const newRefreshInfo: SoapRefresh = {
+			seq: faker.number.int(),
+			mbx: [{ s: faker.number.int() }]
+		};
+		vi.spyOn(ApiManager.getApiManager(), 'getSessionInfo').mockReturnValue({
+			legacyRefreshInfo: initialRefreshInfo
+		});
 
-        const { result } = renderHook(() => useInfoRefresh());
+		const { result } = renderHook(() => useInfoRefresh());
 
-        act(() => {
-            window.dispatchEvent(new CustomEvent(ApiEvents.InfoRefreshReceive, { detail: newRefreshInfo }));
-        });
+		act(() => {
+			window.dispatchEvent(
+				new CustomEvent(ApiEvents.InfoRefreshReceive, { detail: newRefreshInfo })
+			);
+		});
 
-        expect(result.current).toEqual(newRefreshInfo);
-    });
+		expect(result.current).toEqual(newRefreshInfo);
+	});
 
-    it('should not update state if event detail is empty', () => {
-        const initialRefreshInfo: SoapRefresh = { seq: faker.number.int(), mbx: [{ s: faker.number.int() }] };
-        vi.spyOn(ApiManager.getApiManager(), 'getSessionInfo').mockReturnValue({ legacyRefreshInfo: initialRefreshInfo });
+	it('should not update state if event detail is empty', () => {
+		const initialRefreshInfo: SoapRefresh = {
+			seq: faker.number.int(),
+			mbx: [{ s: faker.number.int() }]
+		};
+		vi.spyOn(ApiManager.getApiManager(), 'getSessionInfo').mockReturnValue({
+			legacyRefreshInfo: initialRefreshInfo
+		});
 
-        const { result } = renderHook(() => useInfoRefresh());
+		const { result } = renderHook(() => useInfoRefresh());
 
-        act(() => {
-            window.dispatchEvent(new CustomEvent(ApiEvents.InfoRefreshReceive, { detail: null }));
-        });
+		act(() => {
+			window.dispatchEvent(new CustomEvent(ApiEvents.InfoRefreshReceive, { detail: null }));
+		});
 
-        expect(result.current).toEqual(initialRefreshInfo);
-    });
+		expect(result.current).toEqual(initialRefreshInfo);
+	});
 
-    it('should remove event listener on unmount', () => {
-        const initialRefreshInfo: SoapRefresh = { seq: faker.number.int(), mbx: [{ s: faker.number.int() }] };
-        vi.spyOn(ApiManager.getApiManager(), 'getSessionInfo').mockReturnValue({ legacyRefreshInfo: initialRefreshInfo });
+	it('should remove event listener on unmount', () => {
+		const initialRefreshInfo: SoapRefresh = {
+			seq: faker.number.int(),
+			mbx: [{ s: faker.number.int() }]
+		};
+		vi.spyOn(ApiManager.getApiManager(), 'getSessionInfo').mockReturnValue({
+			legacyRefreshInfo: initialRefreshInfo
+		});
 
-        const { unmount } = renderHook(() => useInfoRefresh());
-        const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
+		const { unmount } = renderHook(() => useInfoRefresh());
+		const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
 
-        unmount();
+		unmount();
 
-        expect(removeEventListenerSpy).toHaveBeenCalledWith(ApiEvents.InfoRefreshReceive, expect.any(Function));
-        removeEventListenerSpy.mockRestore();
-    });
+		expect(removeEventListenerSpy).toHaveBeenCalledWith(
+			ApiEvents.InfoRefreshReceive,
+			expect.any(Function)
+		);
+		removeEventListenerSpy.mockRestore();
+	});
 });
