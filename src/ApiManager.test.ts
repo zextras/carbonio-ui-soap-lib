@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import {noop} from "lodash";
-import {describe, it, expect, vi} from 'vitest';
+import {describe, it, expect, vi, afterEach} from 'vitest';
 
 import { ApiManager } from './ApiManager';
 
 describe('ApiManager', () => {
+	afterEach(() => ApiManager.destroyInstance());
+
 	it('returns the same instance when getApiManager is called multiple times', () => {
 		const instance1 = ApiManager.getApiManager();
 		const instance2 = ApiManager.getApiManager();
