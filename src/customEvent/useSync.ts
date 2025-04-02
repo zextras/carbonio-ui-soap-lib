@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ApiEvents, SyncUpdateEvent } from './custumEventDispatcher';
 import { SoapNotify } from '../types/network';
 
-export const useAppServerUpdates = (): Array<SoapNotify> => {
+export const useSync = (): Array<SoapNotify> => {
 	const [updates, setUpdates] = useState<Array<SoapNotify>>([]);
 
 	const updatesListener = useCallback((event: CustomEventInit<SyncUpdateEvent['payload']>) => {

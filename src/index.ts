@@ -10,8 +10,8 @@ export * from './fetch/fetch';
 export * from './fetch/fetch-utils';
 export * from './customEvent/custumEventDispatcher';
 export { ApiManager } from './ApiManager';
-export { useAppServerUpdates } from './customEvent/useAppServerUpdates';
-export { useAppServerRefresh } from './customEvent/useAppServerRefresh';
+export { useSync } from './customEvent/useSync';
+export { useInfoRefresh } from './customEvent/useInfoRefresh';
 
 // Export types
 export type * from './types/account';

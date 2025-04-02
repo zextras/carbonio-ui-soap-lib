@@ -9,7 +9,7 @@ import { ApiEvents, InfoRefreshReceiveEvent } from './custumEventDispatcher';
 import { ApiManager } from '../ApiManager';
 import { SoapRefresh } from '../types/network';
 
-export const useAppServerRefresh = (): SoapRefresh => {
+export const useInfoRefresh = (): SoapRefresh => {
 	const initialRefreshInfo = ApiManager.getApiManager().getSessionInfo().legacyRefreshInfo;
 	const [refresh, setRefresh] = useState<SoapRefresh>(initialRefreshInfo);
 
