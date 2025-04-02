@@ -59,7 +59,7 @@ export class ApiManager {
 		this.sessionInfo.pollingTimeoutHandler = undefined;
 	}
 
-	constructor() {
+	private constructor() {
 		this.sessionInfo = {
 			legacyRefreshInfo: {}
 		};

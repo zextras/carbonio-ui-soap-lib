@@ -121,7 +121,6 @@ const handleFaultResponse = <R extends Record<string, unknown>>(res: RawSoapResp
 
 const handleResponseContext = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
 	if (res.Header?.context) {
-		console.log('### handleResponseV2', res.Header.context);
 		const {session} = res.Header.context;
 
 		const notificationsSequence = res.Header.context.notify?.[0]?.seq;

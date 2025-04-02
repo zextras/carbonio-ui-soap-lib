@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+import {noop} from "lodash";
 import {describe, it, expect, vi} from 'vitest';
 
 import { ApiManager } from './ApiManager';
@@ -15,7 +16,7 @@ describe('ApiManager', () => {
 	});
 
 	it('initializes sessionInfo as an empty object', () => {
-		const apiManager = new ApiManager();
+		const apiManager = ApiManager.getApiManager();
 		expect(apiManager.getSessionInfo()).toEqual({ legacyRefreshInfo: {} });
 	});
 
@@ -26,14 +27,14 @@ describe('ApiManager', () => {
 	});
 
 	it('does not overwrite existing ApiManager instance', () => {
-		const existingInstance = new ApiManager();
+		const existingInstance = ApiManager.getApiManager();
 		window.carbonioApiManager = existingInstance;
 		const apiManager = ApiManager.getApiManager();
 		expect(apiManager).toBe(existingInstance);
 	});
 
 	it('sets sessionInfo', () => {
-		const apiManager = new ApiManager();
+		const apiManager = ApiManager.getApiManager();
 		const sessionInfo = { accountId: '123', accountName: 'testUser', legacyRefreshInfo: {} };
 		apiManager.setSessionInfo(sessionInfo);
 		expect(apiManager.getSessionInfo()).toEqual(sessionInfo);
@@ -41,24 +42,24 @@ describe('ApiManager', () => {
 
 	it('resets polling timeout', () => {
 		vi.spyOn(global, 'setTimeout');
-		const apiManager = new ApiManager();
+		const apiManager = ApiManager.getApiManager();
 		const pollingFunction = vi.fn();
 		apiManager.resetPolling(pollingFunction, 1000);
 		expect(setTimeout).toHaveBeenCalledWith(pollingFunction, 1000);
 	});
 
-	it('stops polling is called', () => {
+	it('clearTimeout is not called if the timeoutHandler is not set', () => {
 		vi.spyOn(global, 'clearTimeout');
-		const apiManager = new ApiManager();
+		const apiManager = ApiManager.getApiManager();
 		apiManager.stopPolling();
 
 		expect(clearTimeout).not.toHaveBeenCalled();
 	});
 
-	it('stops polling is not called if pollingTimeoutHandler is not set', () => {
+	it('clearTimeout is called if the timeoutHandler is set', () => {
 		vi.spyOn(global, 'clearTimeout');
-		const pollingTimeoutHandler: NodeJS.Timeout = () => setTimeout(vi.fn(), 5000);
-		const apiManager = new ApiManager();
+		const pollingTimeoutHandler: NodeJS.Timeout = setTimeout(noop, 5000);
+		const apiManager = ApiManager.getApiManager();
 		const sessionInfo = { pollingTimeoutHandler, legacyRefreshInfo: {} };
 		apiManager.setSessionInfo(sessionInfo);
 		apiManager.stopPolling();

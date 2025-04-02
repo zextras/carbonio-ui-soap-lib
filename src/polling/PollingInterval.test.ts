@@ -4,26 +4,17 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import {ApiManager} from "../ApiManager";
 import { JSNS } from "../constants";
+import {getPollingIntervalConfig, PollingIntervalConfig} from "./PollingInterval";
+import {ApiManager} from "../ApiManager";
 import {NoOpResponse} from "../fetch/fetch";
 import {RawSoapResponse} from "../types/network";
 
-describe('Utils', () => {
-	describe('getPollingInterval', () => {
-		it('should return 10000 if the response is a NoOp with waitDisallowed set to true', () => {
-			useNetworkStore.setState({ pollingInterval: 123456789 });
-			useAccountStore.setState((state) => ({
-				...state,
-				settings: {
-					...state.settings,
-					prefs: { ...state.settings.prefs, zimbraPrefMailPollingInterval: '500' }
-				}
-			}));
-			const apiManager = ApiManager.getApiManager();
-
+describe('PollingInterval', () => {
+	describe('getPollingIntervalConfig', () => {
+		it('should return an interval of 10000 ms and long polling disabled if the response is a NoOp with waitDisallowed set to true', () => {
 			const noOpResponse = {
 				Header: {
 					context: {}
@@ -37,19 +28,14 @@ describe('Utils', () => {
 			} satisfies RawSoapResponse<{
 				NoOpResponse: NoOpResponse;
 			}>;
-			const result = getPollingInterval(noOpResponse);
-			expect(result).toBe(10000);
+			const result = getPollingIntervalConfig(noOpResponse);
+			expect(result).toEqual({
+				longPolling: false,
+				millisInterval: 10000
+			} satisfies PollingIntervalConfig);
 		});
 
 		it('should return 60000 if the NoOp response includes a Fault', () => {
-			useNetworkStore.setState({ pollingInterval: 123456789 });
-			useAccountStore.setState((state) => ({
-				...state,
-				settings: {
-					...state.settings,
-					prefs: { ...state.settings.prefs, zimbraPrefMailPollingInterval: '500' }
-				}
-			}));
 			const noOpResponse = {
 				Header: {
 					context: {}
@@ -73,228 +59,165 @@ describe('Utils', () => {
 					}
 				}
 			} satisfies RawSoapResponse<{ NoOpResponse: NoOpResponse }>;
-			const result = getPollingInterval(noOpResponse);
-			expect(result).toBe(60000);
+			const result = getPollingIntervalConfig(noOpResponse);
+			expect(result).toEqual({
+				longPolling: false,
+				millisInterval: 60000
+			} satisfies PollingIntervalConfig);
 		});
+
 
 		describe('without Fault nor waitDisallowed', () => {
 			it('should return 30000 if zimbraPrefMailPollingInterval is not a valid duration', () => {
-				useNetworkStore.setState({ pollingInterval: 123456789 });
-				useAccountStore.setState((state) => ({
-					...state,
-					settings: {
-						...state.settings,
-						prefs: {
-							...state.settings.prefs,
-							zimbraPrefMailPollingInterval: 'invalid string' as Duration
-						}
-					}
-				}));
+				ApiManager.getApiManager().setSessionInfo({pollingPreference: 'invalid string'});
 				const response = {
 					Header: {
 						context: {}
 					},
 					Body: {}
 				} satisfies RawSoapResponse<Record<string, unknown>>;
-				const result = getPollingInterval(response);
-				expect(result).toBe(30000);
+				const result = getPollingIntervalConfig(response);
+				expect(result).toEqual({
+					longPolling: false,
+					millisInterval: 30000
+				} satisfies PollingIntervalConfig);
 			});
 
 			describe('long polling cases', () => {
-				it('should return 500 if zimbraPrefMailPollingInterval is "500" without a duration unit', () => {
-					useNetworkStore.setState({ pollingInterval: 123456789 });
-					useAccountStore.setState((state) => ({
-						...state,
-						settings: {
-							...state.settings,
-							prefs: { ...state.settings.prefs, zimbraPrefMailPollingInterval: '500' }
-						}
-					}));
+				it('should return an interval of 500ms and enable the long polling if polling configuration is "500" without a duration unit', () => {
+					ApiManager.getApiManager().setSessionInfo({pollingPreference: '500'});
 					const response = {
 						Header: {
 							context: {}
 						},
 						Body: {}
 					} satisfies RawSoapResponse<Record<string, unknown>>;
-					const result = getPollingInterval(response);
-					expect(result).toBe(500);
+					const result = getPollingIntervalConfig(response);
+					expect(result).toEqual({
+						longPolling: true,
+						millisInterval: 500
+					} satisfies PollingIntervalConfig);
 				});
 
 				it('should return 500 if zimbraPrefMailPollingInterval is "500ms"', () => {
-					useNetworkStore.setState({ pollingInterval: 123456789 });
-					useAccountStore.setState((state) => ({
-						...state,
-						settings: {
-							...state.settings,
-							prefs: {
-								...state.settings.prefs,
-								zimbraPrefMailPollingInterval: '500ms' satisfies Duration
-							}
-						}
-					}));
+					ApiManager.getApiManager().setSessionInfo({pollingPreference: '500ms'});
 					const response = {
 						Header: {
 							context: {}
 						},
 						Body: {}
 					} satisfies RawSoapResponse<Record<string, unknown>>;
-					const result = getPollingInterval(response);
-					expect(result).toBe(500);
+					const result = getPollingIntervalConfig(response);
+					expect(result).toEqual({
+						longPolling: true,
+						millisInterval: 500
+					} satisfies PollingIntervalConfig);
 				});
 
 				it('should return 500 if zimbraPrefMailPollingInterval is "500s"', () => {
-					useNetworkStore.setState({ pollingInterval: 123456789 });
-					useAccountStore.setState((state) => ({
-						...state,
-						settings: {
-							...state.settings,
-							prefs: {
-								...state.settings.prefs,
-								zimbraPrefMailPollingInterval: '500s' satisfies Duration
-							}
-						}
-					}));
+					ApiManager.getApiManager().setSessionInfo({pollingPreference: '500s'});
 					const response = {
 						Header: {
 							context: {}
 						},
 						Body: {}
 					} satisfies RawSoapResponse<Record<string, unknown>>;
-					const result = getPollingInterval(response);
-					expect(result).toBe(500);
+					const result = getPollingIntervalConfig(response);
+					expect(result).toEqual({
+						longPolling: true,
+						millisInterval: 500
+					} satisfies PollingIntervalConfig);
 				});
 			});
 
 			it('should return the number * 1000 if zimbraPrefMailPollingInterval is set without a duration unit(so are handled as seconds)', () => {
-				useNetworkStore.setState({ pollingInterval: 123456789 });
-				useAccountStore.setState((state) => ({
-					...state,
-					settings: {
-						...state.settings,
-						prefs: {
-							...state.settings.prefs,
-							zimbraPrefMailPollingInterval: '753' satisfies Duration
-						}
-					}
-				}));
+				ApiManager.getApiManager().setSessionInfo({pollingPreference: '753'});
 				const response = {
 					Header: {
 						context: {}
 					},
 					Body: {}
 				} satisfies RawSoapResponse<Record<string, unknown>>;
-				const result = getPollingInterval(response);
-				expect(result).toBe(753_000);
+				const result = getPollingIntervalConfig(response);
+				expect(result).toEqual({
+					longPolling: false,
+					millisInterval: 753_000
+				} satisfies PollingIntervalConfig);
 			});
 
 			it('should return the number if zimbraPrefMailPollingInterval is set with the duration unit ms (milliseconds)', () => {
-				useNetworkStore.setState({ pollingInterval: 123456789 });
-				useAccountStore.setState((state) => ({
-					...state,
-					settings: {
-						...state.settings,
-						prefs: {
-							...state.settings.prefs,
-							zimbraPrefMailPollingInterval: '284ms' satisfies Duration
-						}
-					}
-				}));
+				ApiManager.getApiManager().setSessionInfo({pollingPreference: '284ms'});
 				const response = {
 					Header: {
 						context: {}
 					},
 					Body: {}
 				} satisfies RawSoapResponse<Record<string, unknown>>;
-				const result = getPollingInterval(response);
-				expect(result).toBe(284);
+				const result = getPollingIntervalConfig(response);
+				expect(result).toEqual({
+					longPolling: false,
+					millisInterval: 284
+				} satisfies PollingIntervalConfig);
 			});
 
 			it('should return the number * 1000 if zimbraPrefMailPollingInterval is set with the duration unit s (seconds)', () => {
-				useNetworkStore.setState({ pollingInterval: 123456789 });
-				useAccountStore.setState((state) => ({
-					...state,
-					settings: {
-						...state.settings,
-						prefs: {
-							...state.settings.prefs,
-							zimbraPrefMailPollingInterval: '753s' satisfies Duration
-						}
-					}
-				}));
+				ApiManager.getApiManager().setSessionInfo({pollingPreference: '753s'});
 				const response = {
 					Header: {
 						context: {}
 					},
 					Body: {}
 				} satisfies RawSoapResponse<Record<string, unknown>>;
-				const result = getPollingInterval(response);
-				expect(result).toBe(753000);
+				const result = getPollingIntervalConfig(response);
+				expect(result).toEqual({
+					longPolling: false,
+					millisInterval: 753_000
+				} satisfies PollingIntervalConfig);
 			});
 
 			it('should return the number * 60 * 1000 if zimbraPrefMailPollingInterval duration is set with the duration unit m (minutes)', () => {
-				useNetworkStore.setState({ pollingInterval: 123456789 });
-				useAccountStore.setState((state) => ({
-					...state,
-					settings: {
-						...state.settings,
-						prefs: {
-							...state.settings.prefs,
-							zimbraPrefMailPollingInterval: '50m' satisfies Duration
-						}
-					}
-				}));
+				ApiManager.getApiManager().setSessionInfo({pollingPreference: '50m'});
 				const response = {
 					Header: {
 						context: {}
 					},
 					Body: {}
 				} satisfies RawSoapResponse<Record<string, unknown>>;
-				const result = getPollingInterval(response);
-				expect(result).toBe(50 * 60 * 1000);
+				const result = getPollingIntervalConfig(response);
+				expect(result).toEqual({
+					longPolling: false,
+					millisInterval: 60 * 50 * 1000
+				} satisfies PollingIntervalConfig);
 			});
 
 			it('should return the number * 60 * 60 * 1000 if zimbraPrefMailPollingInterval is set with the duration unit h (hours)', () => {
-				useNetworkStore.setState({ pollingInterval: 123456789 });
-				useAccountStore.setState((state) => ({
-					...state,
-					settings: {
-						...state.settings,
-						prefs: {
-							...state.settings.prefs,
-							zimbraPrefMailPollingInterval: '2h' satisfies Duration
-						}
-					}
-				}));
+				ApiManager.getApiManager().setSessionInfo({pollingPreference: '2h'});
 				const response = {
 					Header: {
 						context: {}
 					},
 					Body: {}
 				} satisfies RawSoapResponse<Record<string, unknown>>;
-				const result = getPollingInterval(response);
-				expect(result).toBe(2 * 60 * 60 * 1000);
+				const result = getPollingIntervalConfig(response);
+				expect(result).toEqual({
+					longPolling: false,
+					millisInterval: 2 * 60 * 60 * 1000
+				} satisfies PollingIntervalConfig);
 			});
 
 			it('should return the number * 24 * 60 * 60 * 1000 if zimbraPrefMailPollingInterval is set with the duration unit d (days)', () => {
-				useNetworkStore.setState({ pollingInterval: 123456789 });
-				useAccountStore.setState((state) => ({
-					...state,
-					settings: {
-						...state.settings,
-						prefs: {
-							...state.settings.prefs,
-							zimbraPrefMailPollingInterval: '2d' satisfies Duration
-						}
-					}
-				}));
+				ApiManager.getApiManager().setSessionInfo({pollingPreference: '2d'});
 				const response = {
 					Header: {
 						context: {}
 					},
 					Body: {}
 				} satisfies RawSoapResponse<Record<string, unknown>>;
-				const result = getPollingInterval(response);
-				expect(result).toBe(2 * 24 * 60 * 60 * 1000);
+				const result = getPollingIntervalConfig(response);
+				expect(result).toEqual({
+					longPolling: false,
+					millisInterval: 2 * 24 * 60 * 60 * 1000
+				} satisfies PollingIntervalConfig);
 			});
 		});
 	});
