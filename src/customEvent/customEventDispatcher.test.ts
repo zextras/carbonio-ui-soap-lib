@@ -14,7 +14,7 @@ import {
 	dispatchAuthErrorEvent,
 	ApiEvents
 } from './custumEventDispatcher';
-import {SoapContext, SoapRefresh} from '../types/network';
+import { SoapContext, SoapRefresh } from '../types/network';
 
 describe('CustomEventDispatcher', () => {
 	it('dispatchUserQuotaChangeEvent should dispatch the correct event with quota', () => {
@@ -45,7 +45,8 @@ describe('CustomEventDispatcher', () => {
 	it('dispatchInfoRefreshReceiveEvent should dispatch the correct event with refresh data', () => {
 		const refresh: SoapRefresh = {
 			seq: faker.number.int(),
-			mbx: [{ s: faker.number.int() }] };
+			mbx: [{ s: faker.number.int() }]
+		};
 		const spy = vi.spyOn(window, 'dispatchEvent');
 		dispatchInfoRefreshReceiveEvent(refresh);
 		expect(spy).toHaveBeenCalledWith(

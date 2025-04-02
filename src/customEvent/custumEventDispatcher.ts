@@ -13,19 +13,19 @@ export const ApiEvents = {
 	AuthError: 'carbonioAuthError'
 } as const;
 
-export type UserQuotaEvent = {
+export type UserQuotaChangeEvent = {
 	name: typeof ApiEvents.UserQuotaChange;
 	payload: {
 		quota: number;
 	};
 };
 
-export type NotifyEvent = {
+export type SyncUpdateEvent = {
 	name: typeof ApiEvents.SyncUpdate;
 	payload: SoapContext['notify'];
 };
 
-export type RefreshEvent = {
+export type InfoRefreshReceiveEvent = {
 	name: typeof ApiEvents.InfoRefreshReceive;
 	payload: SoapContext['refresh'];
 };
@@ -37,7 +37,7 @@ export type AuthErrorEvent = {
 	};
 };
 
-type ApiEvent = UserQuotaEvent | NotifyEvent | AuthErrorEvent | RefreshEvent;
+type ApiEvent = UserQuotaChangeEvent | SyncUpdateEvent | AuthErrorEvent | InfoRefreshReceiveEvent;
 
 const dispatchCustomEvent = (event: ApiEvent): void => {
 	window.dispatchEvent(new CustomEvent(event.name, { detail: event.payload }));

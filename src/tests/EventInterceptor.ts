@@ -11,6 +11,9 @@ export const createEventInterceptor = (eventName: string): Mock<(e: Event) => vo
 	return interceptor;
 };
 
-export const removeEventInterceptor = (eventName: string, interceptor: (e: Event) => void): void => {
+export const removeEventInterceptor = (
+	eventName: string,
+	interceptor: (e: Event) => void
+): void => {
 	window.removeEventListener(eventName, interceptor);
 };

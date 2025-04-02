@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 
-import { ApiEvents, RefreshEvent } from './custumEventDispatcher';
+import { ApiEvents, InfoRefreshReceiveEvent } from './custumEventDispatcher';
 import { ApiManager } from '../ApiManager';
 import { SoapRefresh } from '../types/network';
 
@@ -13,7 +13,7 @@ export const useAppServerRefresh = (): SoapRefresh => {
 	const initialRefreshInfo = ApiManager.getApiManager().getSessionInfo().legacyRefreshInfo;
 	const [refresh, setRefresh] = useState<SoapRefresh>(initialRefreshInfo);
 
-	const listener = useCallback((event: CustomEventInit<RefreshEvent['payload']>) => {
+	const listener = useCallback((event: CustomEventInit<InfoRefreshReceiveEvent['payload']>) => {
 		if (!event.detail) {
 			return;
 		}

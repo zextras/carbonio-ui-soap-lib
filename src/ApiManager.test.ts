@@ -9,7 +9,9 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { ApiManager } from './ApiManager';
 
 describe('ApiManager', () => {
-	afterEach((): void => {window.carbonioApiManager = undefined;});
+	afterEach((): void => {
+		window.carbonioApiManager = undefined;
+	});
 
 	it('returns the same instance when getApiManager is called multiple times', () => {
 		const instance1 = ApiManager.getApiManager();
