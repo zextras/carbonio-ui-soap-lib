@@ -9,20 +9,21 @@ import { find, map } from 'lodash';
 import { soapFetch } from './fetch-utils';
 import { userAgent } from './user-agent';
 import { ApiManager } from '../ApiManager';
-import {JSNS} from "../constants";
+import { JSNS } from '../constants';
 import {
 	dispatchAuthErrorEvent,
-	dispatchNotifyEvent,
-	dispatchRefreshEvent,
-	dispatchUserQuotaEvent
+	dispatchSyncUpdateEvent,
+	dispatchInfoRefreshReceiveEvent,
+	dispatchUserQuotaChangeEvent
 } from '../customEvent/custumEventDispatcher';
-import {getPollingIntervalConfig} from "../polling/PollingInterval";
+import { getPollingIntervalConfig } from '../polling/PollingInterval';
 import {
 	ErrorSoapBodyResponse,
 	ErrorSoapResponse,
 	RawSoapContext,
 	RawSoapNotify,
-	RawSoapResponse, type SoapBody,
+	RawSoapResponse,
+	type SoapBody,
 	SoapContext,
 	SoapNotify
 } from '../types/network';
@@ -59,9 +60,8 @@ export const shortPollingNoOp = (): void => {
 };
 
 export const longPollingNoOp = (): void => {
-	noOp({wait: true, limitToOneBlocked: true});
+	noOp({ wait: true, limitToOneBlocked: true });
 };
-
 
 const composeAccountTag = (otherAccount?: string): string => {
 	if (otherAccount) {
@@ -119,9 +119,11 @@ const handleFaultResponse = <R extends Record<string, unknown>>(res: RawSoapResp
 	);
 };
 
-const handleResponseContext = <R extends Record<string, unknown>>(res: RawSoapResponse<R>): void => {
+const handleResponseContext = <R extends Record<string, unknown>>(
+	res: RawSoapResponse<R>
+): void => {
 	if (res.Header?.context) {
-		const {session} = res.Header.context;
+		const { session } = res.Header.context;
 
 		const notificationsSequence = res.Header.context.notify?.[0]?.seq;
 
@@ -133,19 +135,19 @@ const handleResponseContext = <R extends Record<string, unknown>>(res: RawSoapRe
 			res.Header.context?.refresh?.mbx?.[0]?.s ??
 			res.Header.context?.notify?.[0]?.modified?.mbx?.[0]?.s;
 		if (responseUsedQuota) {
-			dispatchUserQuotaEvent(responseUsedQuota);
+			dispatchUserQuotaChangeEvent(responseUsedQuota);
 		}
 
 		const headerContext = normalizeContext(res.Header.context);
 
 		// Extract and dispatch the "notify" section from the response
 		if (headerContext.notify && headerContext.notify.length > 0) {
-			dispatchNotifyEvent(headerContext.notify);
+			dispatchSyncUpdateEvent(headerContext.notify);
 		}
 
 		// Extract and dispatch the "refresh" section from the response
 		if (headerContext.refresh) {
-			dispatchRefreshEvent(headerContext.refresh);
+			dispatchInfoRefreshReceiveEvent(headerContext.refresh);
 		}
 
 		// Store the session information
@@ -153,7 +155,7 @@ const handleResponseContext = <R extends Record<string, unknown>>(res: RawSoapRe
 			session,
 			notificationsSequence,
 			// TODO remove ASAP
-			...(headerContext.refresh ? {legacyRefreshInfo: headerContext.refresh} : undefined)
+			...(headerContext.refresh ? { legacyRefreshInfo: headerContext.refresh } : undefined)
 		});
 	}
 };

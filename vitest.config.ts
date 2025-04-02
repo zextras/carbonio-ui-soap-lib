@@ -8,8 +8,8 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
 	test: {
 		environment: 'jsdom',
+		setupFiles: 'vitest.setup.ts',
 		exclude: [
-			'src/fetch/fetch.test.ts', // exclude fetch test
 			'dist/**',
 			'node_modules/**',
 		],

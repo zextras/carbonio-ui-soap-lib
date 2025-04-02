@@ -29,15 +29,7 @@ export class ApiManager {
 		return window.carbonioApiManager;
 	}
 
-	static destroyInstance(): void {
-		if (window.carbonioApiManager) {
-			window.carbonioApiManager.stopPolling();
-			window.carbonioApiManager = undefined;
-		}
-	}
-
 	private sessionInfo: ApiManagerSessionInfo;
-
 
 	getSessionInfo(): ApiManagerSessionInfo {
 		return this.sessionInfo;

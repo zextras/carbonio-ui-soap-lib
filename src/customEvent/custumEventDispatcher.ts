@@ -7,26 +7,26 @@
 import { SoapContext } from '../types/network';
 
 export const ApiEvents = {
-	UserQuota: 'UserQuotaEvent',
-	Notify: 'NotifyEvent',
-	Refresh: 'RefreshEvent',
-	AuthError: 'AuthErrorEvent'
+	UserQuotaChange: `carbonioUserQuotaEventChange`,
+	SyncUpdate: 'carbonioSyncUpdate',
+	InfoRefreshReceive: 'carbonioInfoRefreshReceive',
+	AuthError: 'carbonioAuthError'
 } as const;
 
 export type UserQuotaEvent = {
-	name: typeof ApiEvents.UserQuota;
+	name: typeof ApiEvents.UserQuotaChange;
 	payload: {
 		quota: number;
 	};
 };
 
 export type NotifyEvent = {
-	name: typeof ApiEvents.Notify;
+	name: typeof ApiEvents.SyncUpdate;
 	payload: SoapContext['notify'];
 };
 
 export type RefreshEvent = {
-	name: typeof ApiEvents.Refresh;
+	name: typeof ApiEvents.InfoRefreshReceive;
 	payload: SoapContext['refresh'];
 };
 
@@ -43,16 +43,16 @@ const dispatchCustomEvent = (event: ApiEvent): void => {
 	window.dispatchEvent(new CustomEvent(event.name, { detail: event.payload }));
 };
 
-export const dispatchUserQuotaEvent = (quota: number): void => {
-	dispatchCustomEvent({ name: ApiEvents.UserQuota, payload: { quota } });
+export const dispatchUserQuotaChangeEvent = (quota: number): void => {
+	dispatchCustomEvent({ name: ApiEvents.UserQuotaChange, payload: { quota } });
 };
 
-export const dispatchNotifyEvent = (notifications: SoapContext['notify']): void => {
-	dispatchCustomEvent({ name: ApiEvents.Notify, payload: notifications });
+export const dispatchSyncUpdateEvent = (notifications: SoapContext['notify']): void => {
+	dispatchCustomEvent({ name: ApiEvents.SyncUpdate, payload: notifications });
 };
 
-export const dispatchRefreshEvent = (refresh: SoapContext['refresh']): void => {
-	dispatchCustomEvent({ name: ApiEvents.Refresh, payload: refresh });
+export const dispatchInfoRefreshReceiveEvent = (refresh: SoapContext['refresh']): void => {
+	dispatchCustomEvent({ name: ApiEvents.InfoRefreshReceive, payload: refresh });
 };
 
 export const dispatchAuthErrorEvent = (error: 'NOT_AUTHENTICATED'): void => {

@@ -19,10 +19,10 @@ export const useAppServerUpdates = (): Array<SoapNotify> => {
 	}, []);
 
 	useEffect(() => {
-		window.addEventListener(ApiEvents.Notify, updatesListener);
+		window.addEventListener(ApiEvents.SyncUpdate, updatesListener);
 
 		return () => {
-			window.removeEventListener(ApiEvents.Notify, updatesListener);
+			window.removeEventListener(ApiEvents.SyncUpdate, updatesListener);
 		};
 	}, [updatesListener]);
 

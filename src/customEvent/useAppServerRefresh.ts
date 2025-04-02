@@ -21,10 +21,10 @@ export const useAppServerRefresh = (): SoapRefresh => {
 	}, []);
 
 	useEffect(() => {
-		window.addEventListener(ApiEvents.Refresh, listener);
+		window.addEventListener(ApiEvents.InfoRefreshReceive, listener);
 
 		return () => {
-			window.removeEventListener(ApiEvents.Refresh, listener);
+			window.removeEventListener(ApiEvents.InfoRefreshReceive, listener);
 		};
 	}, [listener]);
 

@@ -6,7 +6,7 @@
 import type { HttpResponseResolver } from 'msw';
 import { HttpResponse } from 'msw';
 
-import {GetInfoResponse, SoapBody} from "../../../types/network";
+import { GetInfoResponse, SoapBody } from '../../../types/network';
 
 const DEFAULT_ID = 'logged-user-id';
 export const LOGGED_USER = {
