@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2025 Zextras <https://www.zextras.com>
+
+/LICENSES/
+/node_modules/
+/dist/
+/coverage/
+/.vscode/
+/.idea/
+/.reuse/
+/.husky/
+/.git/
+/.github/
+.gitignore
+.env
+.DS_Store
+junit.xml
+LICENSE
+THIRDPARTIES
+.prettierignore
