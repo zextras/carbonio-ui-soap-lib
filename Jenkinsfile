@@ -141,7 +141,6 @@ pipeline {
                     }
                     post {
                         always {
-                            junit 'junit.xml'
                             recordCoverage(tools: [[parser: 'COBERTURA', pattern: 'coverage/cobertura-coverage.xml']])
                         }
                     }
