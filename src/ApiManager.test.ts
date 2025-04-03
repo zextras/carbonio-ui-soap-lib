@@ -52,6 +52,17 @@ describe('ApiManager', () => {
 		expect(setTimeout).toHaveBeenCalledWith(pollingFunction, 1000);
 	});
 
+	it('should clear the existing timeout if the polling is about to be reset', () => {
+		vi.spyOn(global, 'clearTimeout');
+		const pollingTimeoutHandler: NodeJS.Timeout = setTimeout(noop, 5000);
+		const apiManager = ApiManager.getApiManager();
+		const sessionInfo = { pollingTimeoutHandler, legacyRefreshInfo: {} };
+		apiManager.setSessionInfo(sessionInfo);
+		apiManager.resetPolling(vi.fn(), 1000);
+
+		expect(clearTimeout).toHaveBeenCalledWith(pollingTimeoutHandler);
+	});
+
 	it('clearTimeout is not called if the timeoutHandler is not set', () => {
 		vi.spyOn(global, 'clearTimeout');
 		const apiManager = ApiManager.getApiManager();
@@ -60,7 +71,7 @@ describe('ApiManager', () => {
 		expect(clearTimeout).not.toHaveBeenCalled();
 	});
 
-	it('clearTimeout is called if the timeoutHandler is set', () => {
+	it('should clear the existing timeout if the polling is about to be stopped', () => {
 		vi.spyOn(global, 'clearTimeout');
 		const pollingTimeoutHandler: NodeJS.Timeout = setTimeout(noop, 5000);
 		const apiManager = ApiManager.getApiManager();
