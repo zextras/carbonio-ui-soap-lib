@@ -27,7 +27,9 @@ export default defineConfig({
 				'src/tests/*', // exclude test folder
 				'src/index.ts', // exclude index.ts
 				'src/constants', // exclude constants.ts
-			]
-		}
+			],
+		},
+		reporters: ['junit'],
+		outputFile: 'junit.xml'
 	}
 });
