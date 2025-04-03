@@ -20,7 +20,8 @@ describe('endSession', () => {
 			sessionId: faker.number.int().toString(),
 			excludeCurrent: faker.datatype.boolean()
 		};
-		endSession(params);
+
+		await endSession(params);
 		const requestParams = await interceptor;
 		expect(requestParams).toEqual({
 			_jsns: JSNS.account,
@@ -31,15 +32,20 @@ describe('endSession', () => {
 		});
 	});
 
-	it('should call soapFetch with correct parameters when only sessionId is provided', async () => {
-		const params = { sessionId: '123' };
+	const cases = [
+		{logoff: faker.datatype.boolean()},
+		{all: faker.datatype.boolean()},
+		{sessionId: faker.number.int().toString()},
+		{excludeCurrent: faker.datatype.boolean()},
+	];
+
+	it.each(cases)('should call soapFetch with only %s provided', async (params) => {
+		const interceptor = createSoapApiInterceptor('EndSession');
 		await endSession(params);
-		expect(soapFetch).toHaveBeenCalledWith('EndSession', {
+		const requestParams = await interceptor;
+		expect(requestParams).toEqual({
 			_jsns: JSNS.account,
-			logoff: undefined,
-			all: undefined,
-			sessionId: '123',
-			excludeCurrent: undefined
+			...params
 		});
 	});
 });
