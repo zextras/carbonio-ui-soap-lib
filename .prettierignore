@@ -13,7 +13,12 @@
 .gitignore
 .env
 .DS_Store
+.nvmrc
 junit.xml
+COPYING
 LICENSE
 THIRDPARTIES
+README.md
 .prettierignore
+*.toml
+*.properties
