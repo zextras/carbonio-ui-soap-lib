@@ -14,15 +14,15 @@ type HandlerRequest<T> = DefaultBodyType & {
 export const createSoapApiInterceptor = <RequestParamsType, ResponseType = never>(
 	apiAction: string,
 	response?: ResponseType
-): Promise<RequestParamsType> =>
-	new Promise<RequestParamsType>((resolve, reject) => {
+): Promise<RequestParamsType | undefined> =>
+	new Promise<RequestParamsType | undefined>((resolve) => {
 		server.use(
-			http.post<never, HandlerRequest<RequestParamsType>>(
+			http.post<never, HandlerRequest<RequestParamsType | undefined>>(
 				`/service/soap/${apiAction}Request`,
 				async ({ request }) => {
 					const reqActionParamWrapper = `${apiAction}Request`;
 					const requestContent = await request.json();
-					const params = requestContent.Body[reqActionParamWrapper];
+					const params = requestContent?.Body?.[reqActionParamWrapper];
 					resolve(params);
 
 					return HttpResponse.json({
