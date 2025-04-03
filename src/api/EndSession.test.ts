@@ -33,10 +33,10 @@ describe('endSession', () => {
 	});
 
 	const cases = [
-		{logoff: faker.datatype.boolean()},
-		{all: faker.datatype.boolean()},
-		{sessionId: faker.number.int().toString()},
-		{excludeCurrent: faker.datatype.boolean()},
+		{ logoff: faker.datatype.boolean() },
+		{ all: faker.datatype.boolean() },
+		{ sessionId: faker.number.int().toString() },
+		{ excludeCurrent: faker.datatype.boolean() }
 	];
 
 	it.each(cases)('should call soapFetch with only %s provided', async (params) => {

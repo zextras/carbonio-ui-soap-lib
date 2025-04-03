@@ -3,11 +3,11 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import {describe, expect, it} from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import {fetchLocales} from "./FetchLocales";
-import {JSNS} from "../constants";
-import {createSoapApiInterceptor} from "../tests/CreateSoapApiInterceptor";
+import { fetchLocales } from './FetchLocales';
+import { JSNS } from '../constants';
+import { createSoapApiInterceptor } from '../tests/CreateSoapApiInterceptor';
 
 describe('FetchLocales', () => {
 	it('should call the API correctly', async () => {
