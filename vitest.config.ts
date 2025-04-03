@@ -24,7 +24,7 @@ export default defineConfig({
 			exclude: [
 				'**/(test|mock)*.ts(x)?', // exclude file which name starts with test or mock
 				'src/**/types/*', // exclude types
-				'src/tests/*', // exclude test folder
+				'src/tests/**', // exclude test folder
 				'src/index.ts', // exclude index.ts
 				'src/constants', // exclude constants.ts
 			],
