@@ -129,19 +129,17 @@ pipeline {
                     steps {
                         unstash(name: ".npmrc")
                         nodeCmd('npm run test')
-                    }
-                    post {
-                        success {
-                            script {
-                                if (fileExists('coverage/lcov.info')) {
-                                    lcovIsPresent = true
-                                    stash(
-                                        includes: 'coverage/lcov.info',
-                                        name: 'lcov.info'
-                                    )
-                                }
+                        script {
+                            if (fileExists('coverage/lcov.info')) {
+                                lcovIsPresent = true
+                                stash(
+                                    includes: 'coverage/lcov.info',
+                                    name: 'lcov.info'
+                                )
                             }
                         }
+                    }
+                    post {
                         always {
                             junit 'junit.xml'
                             recordCoverage(tools: [[parser: 'COBERTURA', pattern: 'coverage/cobertura-coverage.xml']])
