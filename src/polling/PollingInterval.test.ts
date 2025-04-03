@@ -4,13 +4,13 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import { JSNS } from "../constants";
-import {getPollingIntervalConfig, PollingIntervalConfig} from "./PollingInterval";
-import {ApiManager} from "../ApiManager";
-import {NoOpResponse} from "../fetch/fetch";
-import {RawSoapResponse} from "../types/network";
+import { JSNS } from '../constants';
+import { getPollingIntervalConfig, PollingIntervalConfig } from './PollingInterval';
+import { ApiManager } from '../ApiManager';
+import { NoOpResponse } from '../fetch/fetch';
+import { RawSoapResponse } from '../types/network';
 
 const cases = [
 	{
@@ -131,7 +131,7 @@ describe('PollingInterval', () => {
 
 		describe('without Fault nor waitDisallowed', () => {
 			it.each(cases)('$desc', ({ pollingPreference, longPolling, millisInterval }) => {
-				ApiManager.getApiManager().setSessionInfo({pollingPreference});
+				ApiManager.getApiManager().setSessionInfo({ pollingPreference });
 				const response = {
 					Header: {
 						context: {}

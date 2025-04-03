@@ -5,7 +5,7 @@
  */
 
 // Functions, classes and hooks
-export * from './api/api';
+export * from './api/Api';
 export * from './fetch/fetch';
 export * from './fetch/fetch-utils';
 export * from './customEvent/custumEventDispatcher';
@@ -21,4 +21,4 @@ export type * from './types/network/index';
 export type * from './types/tags';
 
 // Export constants
-export { GET_INFO_RIGHTS, GET_INFO_SECTIONS } from './api/get-info';
+export { GET_INFO_RIGHTS, GET_INFO_SECTIONS } from './api/GetInfo';

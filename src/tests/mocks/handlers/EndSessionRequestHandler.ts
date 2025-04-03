@@ -6,20 +6,17 @@
 import type { HttpResponseResolver } from 'msw';
 import { HttpResponse } from 'msw';
 
-import { JSNS } from '../../../constants';
-import { NoOpRequest, NoOpResponse } from '../../../fetch/fetch';
+import { EndSessionRequest, EndSessionResponse } from '../../../api/EndSession';
 import { SoapRequest, SoapResponse } from '../../../types/network';
 
-export const noOpRequest: HttpResponseResolver<
+export const EndSessionRequestHandler: HttpResponseResolver<
 	never,
-	SoapRequest<{ NoOpRequest: NoOpRequest }>,
-	SoapResponse<NoOpResponse>
+	SoapRequest<{ EndSessionRequest: EndSessionRequest }>,
+	SoapResponse<EndSessionResponse>
 > = () =>
 	HttpResponse.json({
 		Body: {
-			NoOpResponse: {
-				_jsns: JSNS.mail
-			}
+			EndSessionResponse: {}
 		},
 		Header: {
 			context: {}

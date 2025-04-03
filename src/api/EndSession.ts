@@ -7,7 +7,7 @@ import { JSNS } from '../constants';
 import { soapFetch } from '../fetch/fetch-utils';
 import { RawSoapResponse } from '../types/network';
 
-type EndSessionRequest = {
+export type EndSessionRequest = {
 	_jsns: typeof JSNS.account;
 	logoff?: boolean;
 	all?: boolean;
@@ -15,9 +15,9 @@ type EndSessionRequest = {
 	sessionId?: string;
 };
 
-type EndSessionResponse = Record<string, never>;
+export type EndSessionResponse = Record<string, never>;
 
-type EndSessionParams = {
+export type EndSessionParams = {
 	logoff?: boolean;
 	all?: boolean;
 	excludeCurrent?: boolean;

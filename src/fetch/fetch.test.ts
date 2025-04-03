@@ -12,7 +12,7 @@ import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { legacyXmlSoapFetch, NoOpRequest, NoOpResponse } from './fetch';
 import { ApiManager } from '../ApiManager';
 import { createEventInterceptor } from '../tests/EventInterceptor';
-import { noOpRequest } from '../tests/mocks/handlers/NoOpRequest';
+import { noOpRequestHandler } from '../tests/mocks/handlers/NoOpRequestHandler';
 import server from '../tests/mocks/server';
 import type { Duration } from '../types/account';
 import type { ErrorSoapResponse, SoapRequest, SoapResponse } from '../types/network';
@@ -69,7 +69,7 @@ describe('Fetch', () => {
 			async (timout, pollingPref) => {
 				ApiManager.getApiManager().setPollingPreference(pollingPref);
 
-				const noOpHandler = vi.fn(noOpRequest);
+				const noOpHandler = vi.fn(noOpRequestHandler);
 				server.use(
 					http.post<PathParams, DefaultBodyType, SoapResponse<unknown>>(GENERIC_API_ENDPOINT, () =>
 						HttpResponse.json({
@@ -107,7 +107,7 @@ describe('Fetch', () => {
 						NOOP_API_ENDPOINT,
 						async (info) => {
 							noOpRequestBody = await info.request.json();
-							return noOpRequest(info);
+							return noOpRequestHandler(info);
 						}
 					)
 				);
@@ -144,7 +144,7 @@ describe('Fetch', () => {
 					NOOP_API_ENDPOINT,
 					async (info) => {
 						noOpRequestBody = await info.request.json();
-						return noOpRequest(info);
+						return noOpRequestHandler(info);
 					}
 				)
 			);

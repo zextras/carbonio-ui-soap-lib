@@ -3,9 +3,9 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import { endSession } from './endSession';
-import { fetchLocales } from './fetch-locales';
-import { getInfo } from './get-info';
+import { endSession } from './EndSession';
+import { fetchLocales } from './FetchLocales';
+import { getInfo } from './GetInfo';
 
 export const api = {
 	getInfo,

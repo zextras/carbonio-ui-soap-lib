@@ -41,7 +41,7 @@ type GetInfoResponseBody = {
 	};
 };
 
-export const getGetInfoRequest =
+export const getInfoRequestHandler =
 	(
 		getInfoResponse?: Partial<GetInfoResponse>
 	): HttpResponseResolver<never, GetInfoRequestBody, GetInfoResponseBody> =>

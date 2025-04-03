@@ -6,11 +6,12 @@
 
 import { type RequestHandler, http } from 'msw';
 
-import { getGetInfoRequest } from './handlers/getInfoRequest';
+import { EndSessionRequestHandler } from './handlers/EndSessionRequestHandler';
+import { getInfoRequestHandler } from './handlers/GetInfoRequestHandler';
 
 const handlers: RequestHandler[] = [
-	http.post('/service/soap/GetInfoRequest', getGetInfoRequest())
-	// http.post('/service/soap/NoOpRequest', noOpRequest),
+	http.post('/service/soap/GetInfoRequest', getInfoRequestHandler()),
+	http.post('/service/soap/EndSessionRequest', EndSessionRequestHandler)
 ];
 
 export default handlers;
