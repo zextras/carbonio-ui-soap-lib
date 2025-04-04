@@ -9,25 +9,20 @@ export default defineConfig({
 	test: {
 		environment: 'jsdom',
 		setupFiles: 'vitest.setup.ts',
-		exclude: [
-			'dist/**',
-			'node_modules/**',
-		],
+		exclude: ['dist/**', 'node_modules/**'],
 		coverage: {
 			enabled: true,
 			provider: 'v8',
 			reporter: ['text', 'cobertura', 'lcov'],
 			reportsDirectory: 'coverage',
-			include: [
-				'src/**'
-			],
+			include: ['src/**'],
 			exclude: [
 				'**/(test|mock)*.ts(x)?', // exclude file which name starts with test or mock
 				'src/**/types/*', // exclude types
 				'src/tests/**', // exclude test folder
 				'src/index.ts', // exclude index.ts
-				'src/constants', // exclude constants.ts
-			],
+				'src/constants' // exclude constants.ts
+			]
 		},
 		reporters: ['junit'],
 		outputFile: 'junit.xml'

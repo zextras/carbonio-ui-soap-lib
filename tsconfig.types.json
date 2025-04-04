@@ -4,9 +4,6 @@
 	"exclude": ["src/**/*.test.*", "node_modules", "dist"],
 	"compilerOptions": {
 		"declarationDir": "./dist/types",
-		"types": [
-			"./src/types/globals.d.ts",
-			"node"
-		]
+		"types": ["./src/types/globals.d.ts", "node"]
 	}
 }
