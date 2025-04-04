@@ -9,13 +9,4 @@ export type StringOfLength<Min, Max = Min> = string & {
 	readonly StringOfLength: unique symbol; // this is the phantom type
 };
 
-export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
-	{
-		[K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
-	}[Keys];
-
 export type ValueOf<T> = T[keyof T];
-
-export type Exactify<T, X extends T> = T & {
-	[K in keyof X]: K extends keyof T ? X[K] : never;
-};

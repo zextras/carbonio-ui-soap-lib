@@ -81,14 +81,6 @@ export interface AccountSettingsPrefs {
 	[key: string]: string | number | Array<string | number> | undefined;
 }
 
-export type AccountSettingsAttrs = {
-	zimbraFeatureOptionsEnabled?: BooleanString;
-	zimbraIdentityMaxNumEntries?: number;
-	zimbraMailAlias?: string | Array<string>;
-	zimbraAllowFromAddress?: string | Array<string>;
-	[key: string]: string | number | Array<string | number> | undefined;
-};
-
 export interface IdentityAttrs {
 	/** default mail signature for account/identity/dataSource */
 	zimbraPrefDefaultSignatureId?: string;
@@ -147,19 +139,4 @@ export type AccountRights = {
 		right: AccountRightName;
 		target: Array<AccountRightTarget>;
 	}>;
-};
-
-export type Account = {
-	id: string;
-	name: string;
-	displayName: string;
-	signatures: { signature: Array<Signature> };
-	identities: { identity: Array<Identity> };
-	rights: AccountRights;
-};
-
-export type AccountSettings = {
-	attrs: AccountSettingsAttrs;
-	prefs: AccountSettingsPrefs;
-	props: Array<ZimletProp>;
 };
