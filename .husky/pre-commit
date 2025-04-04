@@ -1,5 +1,5 @@
 npm run lint
 npm run type-check
-npm run prettify:check
+npm run prettify:check:list $(git --no-pager diff --name-only --cached | tr '\n' ' ')
 reuse lint
 npm run test
