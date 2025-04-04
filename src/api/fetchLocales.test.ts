@@ -5,9 +5,9 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { fetchLocales } from './FetchLocales';
+import { fetchLocales } from './fetchLocales';
 import { JSNS } from '../constants';
-import { createSoapApiInterceptor } from '../tests/CreateSoapApiInterceptor';
+import { createSoapApiInterceptor } from '../tests/createSoapApiInterceptor';
 
 describe('FetchLocales', () => {
 	it('should call the API correctly', async () => {

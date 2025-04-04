@@ -7,9 +7,9 @@ import { faker } from '@faker-js/faker';
 import { renderHook, act } from '@testing-library/react';
 import { describe, vi, it, expect } from 'vitest';
 
-import { ApiEvents } from './custumEventDispatcher';
+import { ApiEvents } from './customEventDispatcher';
 import { useInfoRefresh } from './useInfoRefresh';
-import { ApiManager } from '../ApiManager';
+import { ApiManager } from '../apiManager';
 import type { SoapRefresh } from '../types/network';
 
 describe('useInfoRefresh', () => {

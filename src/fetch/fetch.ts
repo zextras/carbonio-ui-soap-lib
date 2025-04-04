@@ -6,17 +6,17 @@
 
 import { find, map } from 'lodash';
 
-import { soapFetch } from './fetch-utils';
-import { userAgent } from './user-agent';
-import { ApiManager } from '../ApiManager';
+import { soapFetch } from './fetchUtils';
+import { userAgent } from './userAgent';
+import { ApiManager } from '../apiManager';
 import { JSNS } from '../constants';
 import {
 	dispatchAuthErrorEvent,
 	dispatchSyncUpdateEvent,
 	dispatchInfoRefreshReceiveEvent,
 	dispatchUserQuotaChangeEvent
-} from '../customEvent/custumEventDispatcher';
-import { getPollingIntervalConfig } from '../polling/PollingInterval';
+} from '../customEvent/customEventDispatcher';
+import { getPollingIntervalConfig } from '../polling/pollingInterval';
 import {
 	ErrorSoapBodyResponse,
 	ErrorSoapResponse,

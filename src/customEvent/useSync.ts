@@ -5,7 +5,7 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 
-import { ApiEvents, SyncUpdateEvent } from './custumEventDispatcher';
+import { ApiEvents, SyncUpdateEvent } from './customEventDispatcher';
 import { SoapNotify } from '../types/network';
 
 export const useSync = (): Array<SoapNotify> => {

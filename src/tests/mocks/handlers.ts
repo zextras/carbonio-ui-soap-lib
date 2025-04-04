@@ -6,8 +6,8 @@
 
 import { type RequestHandler, http } from 'msw';
 
-import { EndSessionRequestHandler } from './handlers/EndSessionRequestHandler';
-import { getInfoRequestHandler } from './handlers/GetInfoRequestHandler';
+import { EndSessionRequestHandler } from './handlers/endSessionRequestHandler';
+import { getInfoRequestHandler } from './handlers/getInfoRequestHandler';
 
 const handlers: RequestHandler[] = [
 	http.post('/service/soap/GetInfoRequest', getInfoRequestHandler()),

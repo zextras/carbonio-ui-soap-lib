@@ -6,7 +6,7 @@
 import { noop } from 'lodash';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
-import { ApiManager } from './ApiManager';
+import { ApiManager } from './apiManager';
 
 describe('ApiManager', () => {
 	afterEach((): void => {

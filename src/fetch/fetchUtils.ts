@@ -3,11 +3,8 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import { userAgent } from './user-agent';
-// import { useAccountStore } from '../store/account';
-// import { useNetworkStore } from '../store/network';
-// import type { Account } from '../types/account';
-import { ApiManager } from '../ApiManager';
+import { userAgent } from './userAgent';
+import { ApiManager } from '../apiManager';
 import { JSNS } from '../constants';
 import type { RawSoapResponse } from '../types/network';
 

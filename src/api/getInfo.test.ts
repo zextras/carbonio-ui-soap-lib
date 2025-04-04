@@ -12,11 +12,11 @@
 import { faker } from '@faker-js/faker';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
-import { getInfo } from './GetInfo';
-import { ApiManager } from '../ApiManager';
+import { getInfo } from './getInfo';
+import { ApiManager } from '../apiManager';
 import { JSNS } from '../constants';
-import { ApiEvents } from '../customEvent/custumEventDispatcher';
-import { createSoapApiInterceptor } from '../tests/CreateSoapApiInterceptor';
+import { ApiEvents } from '../customEvent/customEventDispatcher';
+import { createSoapApiInterceptor } from '../tests/createSoapApiInterceptor';
 import { RawSoapContext } from '../types/network';
 
 describe('GetInfo', () => {

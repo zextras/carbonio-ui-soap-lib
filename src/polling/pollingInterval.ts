@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { ApiManager } from '../ApiManager';
+import { ApiManager } from '../apiManager';
 import type { NoOpResponse } from '../fetch/fetch';
 import type { RawSoapResponse } from '../types/network';
 

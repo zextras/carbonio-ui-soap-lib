@@ -14,10 +14,6 @@ export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclu
 		[K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
 	}[Keys];
 
-// check if there is a way to remove these any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyFunction = (...args: any[]) => any;
-
 export type ValueOf<T> = T[keyof T];
 
 export type Exactify<T, X extends T> = T & {

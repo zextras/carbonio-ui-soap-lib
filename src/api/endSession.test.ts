@@ -6,9 +6,9 @@
 import { faker } from '@faker-js/faker';
 import { describe, it, expect } from 'vitest';
 
-import { endSession } from './EndSession';
+import { endSession } from './endSession';
 import { JSNS } from '../constants';
-import { createSoapApiInterceptor } from '../tests/CreateSoapApiInterceptor';
+import { createSoapApiInterceptor } from '../tests/createSoapApiInterceptor';
 
 describe('endSession', () => {
 	it('should call the API with correct parameters when all options are provided', async () => {

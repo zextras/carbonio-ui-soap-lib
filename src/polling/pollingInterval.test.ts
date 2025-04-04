@@ -7,8 +7,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { JSNS } from '../constants';
-import { getPollingIntervalConfig, PollingIntervalConfig } from './PollingInterval';
-import { ApiManager } from '../ApiManager';
+import { getPollingIntervalConfig, PollingIntervalConfig } from './pollingInterval';
+import { ApiManager } from '../apiManager';
 import { NoOpResponse } from '../fetch/fetch';
 import { RawSoapResponse } from '../types/network';
 

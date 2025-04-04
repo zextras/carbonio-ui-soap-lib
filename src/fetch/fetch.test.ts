@@ -10,9 +10,9 @@ import { http, HttpResponse } from 'msw';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 
 import { legacyXmlSoapFetch, NoOpRequest, NoOpResponse } from './fetch';
-import { ApiManager } from '../ApiManager';
-import { createEventInterceptor } from '../tests/EventInterceptor';
-import { noOpRequestHandler } from '../tests/mocks/handlers/NoOpRequestHandler';
+import { ApiManager } from '../apiManager';
+import { createEventInterceptor } from '../tests/eventInterceptor';
+import { noOpRequestHandler } from '../tests/mocks/handlers/noOpRequestHandler';
 import server from '../tests/mocks/server';
 import type { Duration } from '../types/account';
 import type { ErrorSoapResponse, SoapRequest, SoapResponse } from '../types/network';

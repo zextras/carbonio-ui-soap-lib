@@ -5,8 +5,8 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 
-import { ApiEvents, InfoRefreshReceiveEvent } from './custumEventDispatcher';
-import { ApiManager } from '../ApiManager';
+import { ApiEvents, InfoRefreshReceiveEvent } from './customEventDispatcher';
+import { ApiManager } from '../apiManager';
 import { SoapRefresh } from '../types/network';
 
 export const useInfoRefresh = (): SoapRefresh => {

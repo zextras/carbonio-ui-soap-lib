@@ -13,7 +13,7 @@ import {
 	dispatchInfoRefreshReceiveEvent,
 	dispatchAuthErrorEvent,
 	ApiEvents
-} from './custumEventDispatcher';
+} from './customEventDispatcher';
 import { SoapContext, SoapRefresh } from '../types/network';
 
 describe('CustomEventDispatcher', () => {

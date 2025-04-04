@@ -10,7 +10,7 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 import pkg from './package.json' with { type: 'json' };
 
 export default {
-	input: 'src/index.ts',
+	input: 'src/exports.ts',
 	output: [
 		{
 			file: pkg.exports['.'].require,

@@ -6,7 +6,7 @@
 import type { HttpResponseResolver } from 'msw';
 import { HttpResponse } from 'msw';
 
-import { EndSessionRequest, EndSessionResponse } from '../../../api/EndSession';
+import { EndSessionRequest, EndSessionResponse } from '../../../api/endSession';
 import { SoapRequest, SoapResponse } from '../../../types/network';
 
 export const EndSessionRequestHandler: HttpResponseResolver<

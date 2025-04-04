@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import { JSNS } from '../constants';
-import { soapFetch } from '../fetch/fetch-utils';
+import { soapFetch } from '../fetch/fetchUtils';
 import { RawSoapResponse } from '../types/network';
 
 export type EndSessionRequest = {

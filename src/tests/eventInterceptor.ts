@@ -10,10 +10,3 @@ export const createEventInterceptor = (eventName: string): Mock<(e: Event) => vo
 	window.addEventListener(eventName, interceptor);
 	return interceptor;
 };
-
-export const removeEventInterceptor = (
-	eventName: string,
-	interceptor: (e: Event) => void
-): void => {
-	window.removeEventListener(eventName, interceptor);
-};

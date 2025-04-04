@@ -6,7 +6,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, vi, it, expect } from 'vitest';
 
-import { ApiEvents } from './custumEventDispatcher';
+import { ApiEvents } from './customEventDispatcher';
 import { useSync } from './useSync';
 
 describe('useSync', () => {

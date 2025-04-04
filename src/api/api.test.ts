@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { api } from './Api';
+import { api } from './api';
 
 describe('api', () => {
 	it('should have a specific structure', () => {
