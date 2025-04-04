@@ -11,5 +11,6 @@ export const JSNS = {
 	admin: 'urn:zimbraAdmin',
 	mail: 'urn:zimbraMail',
 	all: 'urn:zimbra',
-	sync: 'urn:zimbraSync'
+	sync: 'urn:zimbraSync',
+	soap: 'urn:zimbraSoap'
 } as const;

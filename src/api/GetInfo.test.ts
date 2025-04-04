@@ -10,22 +10,28 @@
  */
 
 import { faker } from '@faker-js/faker';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 
 import { getInfo } from './GetInfo';
+import { ApiManager } from '../ApiManager';
 import { JSNS } from '../constants';
+import { ApiEvents } from '../customEvent/custumEventDispatcher';
 import { createSoapApiInterceptor } from '../tests/CreateSoapApiInterceptor';
+import { RawSoapContext } from '../types/network';
 
-describe('FetchLocales', () => {
+describe('GetInfo', () => {
+	afterEach((): void => {
+		// Reset the singleton
+		window.carbonioApiManager = undefined;
+	});
+
 	it('should call the API correctly', async () => {
 		const res = {
-			id: faker.datatype.toString(),
-			name: faker.datatype.toString(),
-			version: faker.datatype.toString(),
+			id: faker.string.uuid(),
+			name: faker.word.noun(1),
+			version: faker.system.semver(),
 			prefs: {
-				_attrs: {
-					zimbraPrefMailPollingInterval: '500'
-				}
+				_attrs: { zimbraPrefMailPollingInterval: '500' }
 			}
 		};
 
@@ -42,5 +48,70 @@ describe('FetchLocales', () => {
 			rights: params.rights.toString(),
 			sections: params.sections.toString()
 		});
+	});
+
+	it('should set the session infos if set in the response', async () => {
+		const res = {
+			id: faker.string.uuid(),
+			name: faker.word.noun(1),
+			version: faker.system.semver(),
+			prefs: {
+				_attrs: { zimbraPrefMailPollingInterval: '500' }
+			}
+		};
+		createSoapApiInterceptor('GetInfo', res);
+
+		await getInfo();
+
+		expect(ApiManager.getApiManager().getSessionInfo()).toMatchObject({
+			accountId: res.id,
+			accountName: res.name,
+			carbonioVersion: res.version
+		});
+	});
+
+	it('should set the polling interval if set in the response', async () => {
+		ApiManager.getApiManager().setPollingPreference('120s');
+		const res = {
+			id: faker.string.uuid(),
+			name: faker.word.noun(1),
+			version: faker.system.semver(),
+			prefs: {
+				_attrs: {
+					zimbraPrefMailPollingInterval: '500'
+				}
+			}
+		};
+		createSoapApiInterceptor('GetInfo', res);
+
+		await getInfo();
+
+		expect(ApiManager.getApiManager().getSessionInfo().pollingPreference).toEqual('500');
+	});
+
+	it('should trigger the carbonioInfoRefreshReceive event if the refresh section is set in the response', async () => {
+		const body = {
+			id: faker.string.uuid(),
+			name: faker.word.noun(1),
+			version: faker.system.semver(),
+			prefs: {
+				_attrs: { zimbraPrefMailPollingInterval: '500' }
+			}
+		};
+		const context: RawSoapContext = {
+			refresh: {
+				mbx: [{ s: faker.number.int() }]
+			}
+		};
+
+		const spy = vi.spyOn(window, 'dispatchEvent');
+		createSoapApiInterceptor('GetInfo', body, context);
+
+		await getInfo();
+
+		expect(spy).toHaveBeenCalledWith(
+			new CustomEvent(ApiEvents.InfoRefreshReceive, { detail: context.refresh })
+		);
+		spy.mockRestore();
 	});
 });

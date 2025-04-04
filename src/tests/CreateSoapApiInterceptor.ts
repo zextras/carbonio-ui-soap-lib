@@ -5,15 +5,18 @@
  */
 import { DefaultBodyType, http, HttpResponse } from 'msw';
 
+import { JSNS } from '../constants';
 import server from './mocks/server';
+import { RawSoapContext } from '../types/network';
 
 type HandlerRequest<T> = DefaultBodyType & {
 	Body: Record<string, T>;
 };
 
-export const createSoapApiInterceptor = <RequestParamsType, ResponseType = never>(
+export const createSoapApiInterceptor = <RequestParamsType, ResponseBodyType = never>(
 	apiAction: string,
-	response?: ResponseType
+	body?: ResponseBodyType,
+	context?: RawSoapContext
 ): Promise<RequestParamsType | undefined> =>
 	new Promise<RequestParamsType | undefined>((resolve) => {
 		server.use(
@@ -29,7 +32,11 @@ export const createSoapApiInterceptor = <RequestParamsType, ResponseType = never
 
 					return HttpResponse.json({
 						Body: {
-							[`${apiAction}Response`]: response || {}
+							[`${apiAction}Response`]: body || {}
+						},
+						Header: {
+							context: context ?? {},
+							_jsns: JSNS.soap
 						}
 					});
 				}

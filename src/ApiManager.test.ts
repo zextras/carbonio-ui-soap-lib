@@ -10,6 +10,7 @@ import { ApiManager } from './ApiManager';
 
 describe('ApiManager', () => {
 	afterEach((): void => {
+		// Reset the singleton
 		window.carbonioApiManager = undefined;
 	});
 
