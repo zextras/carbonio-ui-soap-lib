@@ -10,7 +10,7 @@ import { http, HttpResponse } from 'msw';
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 
 import { legacyXmlSoapFetch, NoOpRequest, NoOpResponse } from './fetch';
-import { ApiManager } from '../apiManager';
+import { ApiManager } from '../apiManager/apiManager';
 import { createEventInterceptor } from '../tests/eventInterceptor';
 import { noOpRequestHandler } from '../tests/mocks/handlers/noOpRequestHandler';
 import server from '../tests/mocks/server';

@@ -32,9 +32,7 @@ export type InfoRefreshReceiveEvent = {
 
 export type AuthErrorEvent = {
 	name: typeof ApiEvents.AuthError;
-	payload: {
-		error: 'NOT_AUTHENTICATED';
-	};
+	payload?: never;
 };
 
 type ApiEvent = UserQuotaChangeEvent | SyncUpdateEvent | AuthErrorEvent | InfoRefreshReceiveEvent;
@@ -55,6 +53,6 @@ export const dispatchInfoRefreshReceiveEvent = (refresh: SoapContext['refresh'])
 	dispatchCustomEvent({ name: ApiEvents.InfoRefreshReceive, payload: refresh });
 };
 
-export const dispatchAuthErrorEvent = (error: 'NOT_AUTHENTICATED'): void => {
-	dispatchCustomEvent({ name: ApiEvents.AuthError, payload: { error } });
+export const dispatchAuthErrorEvent = (): void => {
+	dispatchCustomEvent({ name: ApiEvents.AuthError });
 };

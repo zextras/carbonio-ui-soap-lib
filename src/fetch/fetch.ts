@@ -8,7 +8,7 @@ import { find, map } from 'lodash';
 
 import { soapFetch } from './fetchUtils';
 import { userAgent } from './userAgent';
-import { ApiManager } from '../apiManager';
+import { ApiManager } from '../apiManager/apiManager';
 import { JSNS } from '../constants';
 import {
 	dispatchAuthErrorEvent,
@@ -108,7 +108,7 @@ const handleFaultResponse = <R extends Record<string, unknown>>(res: RawSoapResp
 			(code) => code === (<ErrorSoapResponse>res).Body.Fault.Detail?.Error?.Code
 		)
 	) {
-		dispatchAuthErrorEvent('NOT_AUTHENTICATED');
+		dispatchAuthErrorEvent();
 	}
 	console.error(
 		new Error(

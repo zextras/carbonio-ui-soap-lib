@@ -56,10 +56,9 @@ describe('CustomEventDispatcher', () => {
 	});
 
 	it('dispatchAuthErrorEvent should dispatch the correct event with error', () => {
-		const error = 'NOT_AUTHENTICATED';
 		const spy = vi.spyOn(window, 'dispatchEvent');
-		dispatchAuthErrorEvent(error);
-		expect(spy).toHaveBeenCalledWith(new CustomEvent(ApiEvents.AuthError, { detail: { error } }));
+		dispatchAuthErrorEvent();
+		expect(spy).toHaveBeenCalledWith(new CustomEvent(ApiEvents.AuthError, { detail: {} }));
 		spy.mockRestore();
 	});
 });

@@ -9,7 +9,7 @@ import { describe, vi, it, expect } from 'vitest';
 
 import { ApiEvents } from './customEventDispatcher';
 import { useInfoRefresh } from './useInfoRefresh';
-import { ApiManager } from '../apiManager';
+import { ApiManager } from '../apiManager/apiManager';
 import type { SoapRefresh } from '../types/network';
 
 describe('useInfoRefresh', () => {

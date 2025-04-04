@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import { userAgent } from './userAgent';
-import { ApiManager } from '../apiManager';
+import { ApiManager } from '../apiManager/apiManager';
 import { JSNS } from '../constants';
 import type { RawSoapResponse } from '../types/network';
 

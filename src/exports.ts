@@ -9,7 +9,7 @@ export * from './api/api';
 export * from './fetch/fetch';
 export * from './fetch/fetchUtils';
 export * from './customEvent/customEventDispatcher';
-export { ApiManager } from './apiManager';
+export { ApiManager } from './apiManager/apiManager';
 export { useSync } from './customEvent/useSync';
 export { useInfoRefresh } from './customEvent/useInfoRefresh';
 

@@ -13,7 +13,7 @@ import { faker } from '@faker-js/faker';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
 import { getInfo } from './getInfo';
-import { ApiManager } from '../apiManager';
+import { ApiManager } from '../apiManager/apiManager';
 import { JSNS } from '../constants';
 import { ApiEvents } from '../customEvent/customEventDispatcher';
 import { createSoapApiInterceptor } from '../tests/createSoapApiInterceptor';

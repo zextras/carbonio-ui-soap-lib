@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { SoapRefresh } from './types/network';
+import { SoapRefresh } from '../types/network';
 
 type ApiManagerSessionInfo = {
 	accountId?: string;
