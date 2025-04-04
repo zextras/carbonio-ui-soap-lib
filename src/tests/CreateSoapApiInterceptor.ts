@@ -20,9 +20,11 @@ export const createSoapApiInterceptor = <RequestParamsType, ResponseType = never
 			http.post<never, HandlerRequest<RequestParamsType | undefined>>(
 				`/service/soap/${apiAction}Request`,
 				async ({ request }) => {
-					const reqActionParamWrapper = `${apiAction}Request`;
-					const requestContent = await request.json();
+				const reqActionParamWrapper = `${apiAction}Request`;
+				const requestContent = await request.json();
+
 					const params = requestContent?.Body?.[reqActionParamWrapper];
+
 					resolve(params);
 
 					return HttpResponse.json({

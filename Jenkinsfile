@@ -98,6 +98,17 @@ pipeline {
                 }
             }
             parallel {
+                stage('Prettify') {
+                    agent {
+                        node {
+                            label 'nodejs-agent-v4'
+                        }
+                    }
+                    steps {
+                        unstash(name: ".npmrc")
+                        nodeCmd('npm run prettify:check')
+                    }
+                }
                 stage('Lint') {
                     agent {
                         node {

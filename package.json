@@ -23,6 +23,7 @@
 		"build:js": "npx rollup -c rollup.config.mjs",
 		"build:types": "tsc -p tsconfig.types.json",
 		"lint": "eslint --ext .js,.jsx,.ts,.tsx --resolve-plugins-relative-to node_modules/@zextras/carbonio-ui-configs src",
+		"prettify:check": "prettier --check .",
 		"prettify": "prettier --check --write --",
 		"prettify:all": "prettier --check --write .",
 		"prepare": "is-ci || husky",
