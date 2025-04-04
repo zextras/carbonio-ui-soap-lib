@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: 2025 Zextras <https://www.zextras.com>
+
+/node_modules/
+/dist/
+/coverage/
+/.vscode/
+/.idea/
+.env
+.DS_Store
+junit.xml
