@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import { faker } from '@faker-js/faker';
-import { times } from 'lodash';
 import { describe, it, expect, vi } from 'vitest';
 
 import {
@@ -31,7 +30,7 @@ describe('CustomEventDispatcher', () => {
 		const notifications: SoapContext['notify'] = [
 			{
 				seq: faker.number.int(),
-				deleted: times(10, () => faker.number.int().toString())
+				deleted: Array(10).map(() => faker.number.int().toString())
 			}
 		];
 		const spy = vi.spyOn(window, 'dispatchEvent');

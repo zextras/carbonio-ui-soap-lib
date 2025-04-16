@@ -3,7 +3,6 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import { noop } from 'lodash';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 
 import { ApiManager } from './apiManager';
@@ -55,7 +54,7 @@ describe('ApiManager', () => {
 
 	it('should clear the existing timeout if the polling is about to be reset', () => {
 		vi.spyOn(global, 'clearTimeout');
-		const pollingTimeoutHandler: NodeJS.Timeout = setTimeout(noop, 5000);
+		const pollingTimeoutHandler: NodeJS.Timeout = setTimeout(() => {}, 5000);
 		const apiManager = ApiManager.getApiManager();
 		const sessionInfo = { pollingTimeoutHandler, legacyRefreshInfo: {} };
 		apiManager.setSessionInfo(sessionInfo);
@@ -74,7 +73,7 @@ describe('ApiManager', () => {
 
 	it('should clear the existing timeout if the polling is about to be stopped', () => {
 		vi.spyOn(global, 'clearTimeout');
-		const pollingTimeoutHandler: NodeJS.Timeout = setTimeout(noop, 5000);
+		const pollingTimeoutHandler: NodeJS.Timeout = setTimeout(() => {}, 5000);
 		const apiManager = ApiManager.getApiManager();
 		const sessionInfo = { pollingTimeoutHandler, legacyRefreshInfo: {} };
 		apiManager.setSessionInfo(sessionInfo);

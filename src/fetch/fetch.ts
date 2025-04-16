@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { find, map } from 'lodash';
-
 import { soapFetch } from './fetchUtils';
 import { userAgent } from './userAgent';
 import { ApiManager } from '../apiManager/apiManager';
@@ -21,7 +19,6 @@ import {
 	ErrorSoapBodyResponse,
 	ErrorSoapResponse,
 	RawSoapContext,
-	RawSoapNotify,
 	RawSoapResponse,
 	type SoapBody,
 	SoapContext,
@@ -89,7 +86,7 @@ const composeSessionTag = (): string => {
 const normalizeContext = ({ notify: rawNotify, ...context }: RawSoapContext): SoapContext => {
 	const normalizedContext: SoapContext = { ...context, notify: [] };
 	if (rawNotify) {
-		normalizedContext.notify = map<RawSoapNotify, SoapNotify>(rawNotify, (notify) => ({
+		normalizedContext.notify = rawNotify.map<SoapNotify>((notify) => ({
 			...notify,
 			deleted: notify.deleted?.id?.split(',') ?? []
 		}));
@@ -103,8 +100,7 @@ const handleFaultResponse = <R extends Record<string, unknown>>(res: RawSoapResp
 	}
 
 	if (
-		find(
-			['service.AUTH_REQUIRED', 'service.AUTH_EXPIRED'],
+		['service.AUTH_REQUIRED', 'service.AUTH_EXPIRED'].find(
 			(code) => code === (<ErrorSoapResponse>res).Body.Fault.Detail?.Error?.Code
 		)
 	) {
