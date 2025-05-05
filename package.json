@@ -33,7 +33,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/zextras/carbonio-ui-soap-lib"
+		"url": "git+https://github.com/zextras/carbonio-ui-soap-lib.git"
 	},
 	"author": "Zextras Dev Team <https://www.zextras.com/carbonio/>",
 	"license": "AGPL-3.0-only",
