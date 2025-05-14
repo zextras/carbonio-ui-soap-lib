@@ -194,7 +194,10 @@ pipeline {
             steps {
                 script {
                     unstash(name: '.npmrc')
-                    nodeCmd('npm run build')
+                    nodeCmd(
+                         install: true,
+                        'npm run build'
+                    )
                 }
             }
         }
@@ -210,7 +213,10 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'npm-zextras-bot-auth-token', usernameVariable: 'AUTH_USERNAME', passwordVariable: 'NPM_TOKEN')]) {
                         withCredentials([usernamePassword(credentialsId: 'tarsier-bot-pr-token-github', usernameVariable: 'GH_USERNAME', passwordVariable: 'GH_TOKEN')]) {
-                            nodeCmd("npx semantic-release")
+                            nodeCmd(
+                                install: true,
+                                'npx semantic-release'
+                            )
                         }
                     }
                 }
