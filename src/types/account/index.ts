@@ -112,7 +112,7 @@ export interface IdentityAttrs {
 	zimbraPrefWhenSentToAddresses?: Array<string | null>;
 	/** TRUE if we should look at zimbraPrefWhenSentToAddresses (deprecatedSince 5.0 in account) */
 	zimbraPrefWhenSentToEnabled?: BooleanString;
-	/** whether or not to save outgoing mail (deprecatedSince 5.0 in identity) */
+	/** whether to save outgoing mail (deprecatedSince 5.0 in identity) */
 	zimbraPrefSaveToSent?: BooleanString;
 }
 
