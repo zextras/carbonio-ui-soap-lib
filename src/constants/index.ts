@@ -14,3 +14,5 @@ export const JSNS = {
 	sync: 'urn:zimbraSync',
 	soap: 'urn:zimbraSoap'
 } as const;
+
+export const DARK_READER_VALUES = ['auto', 'enabled', 'disabled'] as const;

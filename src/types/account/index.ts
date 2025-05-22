@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-import { DELEGATED_SEND_SAVE_TARGET } from '../../constants';
+import { DARK_READER_VALUES, DELEGATED_SEND_SAVE_TARGET } from '../../constants';
 import { StringOfLength } from '../typeUtils';
 
 export interface ZimletProp {
@@ -78,6 +78,7 @@ export interface AccountSettingsPrefs {
 	zimbraPrefMailTrustedSenderList?: Array<string> | string;
 	zimbraPrefDelegatedSendSaveTarget?: (typeof DELEGATED_SEND_SAVE_TARGET)[number];
 	carbonioPrefSendAnalytics?: BooleanString;
+	carbonioPrefDarkMode?: (typeof DARK_READER_VALUES)[number];
 	[key: string]: string | number | Array<string | number> | undefined;
 }
 
