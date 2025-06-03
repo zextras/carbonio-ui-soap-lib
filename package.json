@@ -64,6 +64,7 @@
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"rollup": "^4.35.0",
+		"sonar-scanner": "^3.1.0",
 		"typescript": "^5.8.2",
 		"vitest": "^3.0.8"
 	},
