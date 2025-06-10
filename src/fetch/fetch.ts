@@ -165,6 +165,8 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 	// Handle response context section
 	handleResponseContext(res);
 
+	// TODO HANDLE HERE GETINFO RESPONSE to avoid usages of getinfo without the proper api call
+
 	// Trigger the next polling
 	const nextPollingConfig = getPollingIntervalConfig(res);
 	const pollingFunction = nextPollingConfig.longPolling ? longPollingNoOp : shortPollingNoOp;

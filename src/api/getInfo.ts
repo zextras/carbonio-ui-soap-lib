@@ -17,7 +17,7 @@ export const GET_INFO_RIGHTS = {
 	viewFreeBusy: 'viewFreeBusy',
 	sendOnBehalfOf: 'sendOnBehalfOf',
 	sendOnBehalfOfDistList: 'sendOnBehalfOfDistList'
-};
+} as const;
 
 export const GET_INFO_SECTIONS = {
 	mbox: 'mbox',
@@ -29,7 +29,7 @@ export const GET_INFO_SECTIONS = {
 	sigs: 'sigs',
 	dsrcs: 'dsrcs',
 	children: 'children'
-};
+} as const;
 
 type GetInfoParams = {
 	rights?: Array<ValueOf<typeof GET_INFO_RIGHTS>>;

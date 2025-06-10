@@ -12,7 +12,7 @@
 import { faker } from '@faker-js/faker';
 import { describe, it, expect, afterEach, vi } from 'vitest';
 
-import { getInfo } from './getInfo';
+import { GET_INFO_RIGHTS, GET_INFO_SECTIONS, getInfo } from './getInfo';
 import { ApiManager } from '../apiManager/apiManager';
 import { JSNS } from '../constants';
 import { ApiEvents } from '../customEvent/customEventDispatcher';
@@ -37,8 +37,8 @@ describe('GetInfo', () => {
 
 		const interceptor = createSoapApiInterceptor('GetInfo', res);
 		const params = {
-			rights: ['sendAs', 'sendOnBehalfOf'],
-			sections: ['mbox', 'attrs']
+			rights: [GET_INFO_RIGHTS.sendAs, GET_INFO_RIGHTS.sendOnBehalfOf],
+			sections: [GET_INFO_SECTIONS.mbox, GET_INFO_SECTIONS.attrs]
 		};
 
 		await getInfo(params);

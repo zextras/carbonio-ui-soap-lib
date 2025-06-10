@@ -22,6 +22,28 @@ export interface Identity {
 	_attrs: IdentityAttrs;
 }
 
+export type AccountSettings = {
+	attrs: AccountSettingsAttrs;
+	prefs: AccountSettingsPrefs;
+	props: Array<ZimletProp>;
+};
+
+export type AccountState = {
+	authenticated: boolean;
+	account?: Account;
+	settings: AccountSettings;
+	usedQuota: number;
+};
+
+export type Account = {
+	id: string;
+	name: string;
+	displayName: string;
+	signatures: { signature: Array<Signature> };
+	identities: { identity: Array<Identity> };
+	rights: AccountRights;
+};
+
 export type Signature = {
 	name: string;
 	id: string;
@@ -56,6 +78,14 @@ export type DurationUnit = 'd' | 'h' | 'm' | 's' | 'ms';
 
 export type Duration = `${number}${DurationUnit | ''}`;
 
+export type AccountSettingsAttrs = {
+	zimbraFeatureOptionsEnabled?: BooleanString;
+	zimbraIdentityMaxNumEntries?: number;
+	zimbraMailAlias?: string | Array<string>;
+	zimbraAllowFromAddress?: string | Array<string>;
+	[key: string]: string | number | Array<string | number> | undefined;
+};
+
 export interface AccountSettingsPrefs {
 	zimbraPrefOutOfOfficeExternalReply?: string;
 	zimbraPrefOutOfOfficeReply?: string;
@@ -82,7 +112,7 @@ export interface AccountSettingsPrefs {
 	[key: string]: string | number | Array<string | number> | undefined;
 }
 
-export interface IdentityAttrs {
+export type IdentityAttrs = {
 	/** default mail signature for account/identity/dataSource */
 	zimbraPrefDefaultSignatureId?: string;
 	zimbraPrefForwardReplyFormat?: `'text' | 'html' | 'same'`;
@@ -113,9 +143,9 @@ export interface IdentityAttrs {
 	zimbraPrefWhenSentToAddresses?: Array<string | null>;
 	/** TRUE if we should look at zimbraPrefWhenSentToAddresses (deprecatedSince 5.0 in account) */
 	zimbraPrefWhenSentToEnabled?: BooleanString;
-	/** whether to save outgoing mail (deprecatedSince 5.0 in identity) */
+	/** whether or not to save outgoing mail (deprecatedSince 5.0 in identity) */
 	zimbraPrefSaveToSent?: BooleanString;
-}
+};
 
 export type AccountRightTargetEmail = {
 	addr: string;
@@ -135,6 +165,7 @@ export type AccountRightName =
 	| 'viewFreeBusy'
 	| 'sendOnBehalfOf'
 	| 'sendOnBehalfOfDistList';
+
 export type AccountRights = {
 	targets: Array<{
 		right: AccountRightName;
