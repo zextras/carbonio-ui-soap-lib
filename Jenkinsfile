@@ -4,49 +4,51 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
-def nodeCmd(String cmd) {
-    sh '. load_nvm && nvm install && nvm use && npm ci && ' + cmd
-}
-
 def getPackageName() {
     return sh(script: 'grep \'"name":\' package.json | sed -n --regexp-extended \'s/.*"name": "([^"]+).*/\\1/p\' ', returnStdout: true).trim()
 }
 
 def getRepositoryName() {
-    return sh(script: '''#!/bin/bash
+    return sh(script: '''
         git remote -v | head -n1 | cut -d$'\t' -f2 | cut -d' ' -f1 | sed -e 's!https://github.com/!!g' -e 's!git@github.com:!!g' -e 's!.git!!g'
     ''', returnStdout: true).trim()
 }
 
 def getLastTag() {
-    return sh(script: '''#!/bin/bash
+    return sh(script: '''
         git describe --tags --abbrev=0
     ''', returnStdout: true).trim()
+}
+
+def getNodeVersion() {
+    return sh(
+        script: 'sed "s/^[vV]//" .nvmrc | cut -d. -f1',
+        returnStdout: true
+    ).trim()
 }
 
 void npmLogin(String npmAuthToken) {
     if (!fileExists(file: '.npmrc')) {
         sh(
             script: """
-                touch .npmrc;
-                echo "//registry.npmjs.org/:_authToken=${npmAuthToken}" > .npmrc
+                echo "//registry.npmjs.org/:_authToken=${npmAuthToken}" >> .npmrc
             """,
             returnStdout: false
         )
     }
 }
 
-Boolean lcovIsPresent
 Boolean isReleaseBranch
 Boolean isDevelBranch
 Boolean isPullRequest
 Boolean isSonarQubeEnabled
 String branchName
+String nodeVersion
 
 pipeline {
     agent {
         node {
-            label 'nodejs-agent-v4'
+            label 'nodejs-v1'
         }
     }
     options {
@@ -70,6 +72,8 @@ pipeline {
                     echo "isSonarQubeEnabled: ${isSonarQubeEnabled}"
                     branchName = env.CHANGE_BRANCH
                     echo "branchName: ${branchName}"
+                    nodeVersion = getNodeVersion()
+                    echo "NodeJS Major Version: $nodeVersion"
                 }
                 withCredentials([
                     usernamePassword(
@@ -82,15 +86,19 @@ pipeline {
                         npmLogin(NPM_PASSWORD)
                     }
                 }
-                stash(
-                    includes: ".npmrc",
-                    name: ".npmrc"
-                )
+            }
+        }
+        stage('Install dependencies') {
+            steps {
+                container('nodejs-' + nodeVersion) {
+                    script {
+                        sh 'npm ci'
+                    }
+                }
             }
         }
         stage('Tests') {
             when {
-                beforeAgent true
                 anyOf {
                     expression { isSonarQubeEnabled == true }
                     expression { isPullRequest == true }
@@ -99,55 +107,30 @@ pipeline {
             }
             parallel {
                 stage('Prettify') {
-                    agent {
-                        node {
-                            label 'nodejs-agent-v4'
-                        }
-                    }
                     steps {
-                        unstash(name: ".npmrc")
-                        nodeCmd('npm run prettify:check')
+                        container('nodejs-' + nodeVersion) {
+                            sh 'npm run prettify:check'
+                        }
                     }
                 }
                 stage('Lint') {
-                    agent {
-                        node {
-                            label 'nodejs-agent-v4'
-                        }
-                    }
                     steps {
-                        unstash(name: ".npmrc")
-                        nodeCmd('npm run lint')
+                        container('nodejs-' + nodeVersion) {
+                            sh 'npm run lint'
+                        }
                     }
                 }
                 stage('TypeCheck') {
-                    agent {
-                        node {
-                            label "nodejs-agent-v4"
-                        }
-                    }
                     steps {
-                        unstash(name: ".npmrc")
-                        nodeCmd('npm run type-check')
+                        container('nodejs-' + nodeVersion) {
+                            sh 'npm run type-check'
+                        }
                     }
                 }
                 stage('Unit Tests') {
-                    agent {
-                        node {
-                            label 'nodejs-agent-v4'
-                        }
-                    }
                     steps {
-                        unstash(name: ".npmrc")
-                        nodeCmd('npm run test')
-                        script {
-                            if (fileExists('coverage/lcov.info')) {
-                                lcovIsPresent = true
-                                stash(
-                                    includes: 'coverage/lcov.info',
-                                    name: 'lcov.info'
-                                )
-                            }
+                        container('nodejs-' + nodeVersion) {
+                            sh 'npm run test'
                         }
                     }
                     post {
@@ -161,56 +144,43 @@ pipeline {
         }
 
         stage('SonarQube analysis') {
-            agent {
-                node {
-                    label 'nodejs-agent-v4'
-                }
-            }
             when {
-                beforeAgent true
                 allOf {
                     expression { isSonarQubeEnabled == true }
                 }
             }
             steps {
-                script {
-                    if (lcovIsPresent) {
-                        unstash(name: 'lcov.info')
+                container('nodejs-' + nodeVersion) {
+                    withSonarQubeEnv(credentialsId: 'sonarqube-user-token', installationName: 'SonarQube instance') {
+                        sh "npx sonar-scanner -Dsonar.projectKey=${getPackageName().replaceAll("@zextras/", "")} -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info"
                     }
-                    nodeCmd('npm i -D sonarqube-scanner')
-                }
-                withSonarQubeEnv(credentialsId: 'sonarqube-user-token', installationName: 'SonarQube instance') {
-                    nodeCmd("npx sonar-scanner -Dsonar.projectKey=${getPackageName().replaceAll("@zextras/", "")} -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info")
                 }
             }
         }
 
         stage("Build") {
-            agent {
-                node {
-                    label "nodejs-agent-v4"
-                }
-            }
             steps {
-                script {
-                    unstash(name: '.npmrc')
-                    nodeCmd('npm run build')
+                container('nodejs-' + nodeVersion) {
+                    script {
+                        sh 'npm run build'
+                    }
                 }
             }
         }
 
         stage('Release') {
             when {
-                beforeAgent true
                 allOf {
                     expression { isPullRequest == false }
                 }
             }
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'npm-zextras-bot-auth-token', usernameVariable: 'AUTH_USERNAME', passwordVariable: 'NPM_TOKEN')]) {
-                        withCredentials([usernamePassword(credentialsId: 'tarsier-bot-pr-token-github', usernameVariable: 'GH_USERNAME', passwordVariable: 'GH_TOKEN')]) {
-                            nodeCmd("npx semantic-release")
+                container('nodejs-' + nodeVersion) {
+                    script {
+                        withCredentials([usernamePassword(credentialsId: 'npm-zextras-bot-auth-token', usernameVariable: 'AUTH_USERNAME', passwordVariable: 'NPM_TOKEN')]) {
+                            withCredentials([usernamePassword(credentialsId: 'jenkins-integration-with-github-account', usernameVariable: 'GH_USERNAME', passwordVariable: 'GH_TOKEN')]) {
+                                sh "npx semantic-release"
+                            }
                         }
                     }
                 }
@@ -219,30 +189,31 @@ pipeline {
 
         stage('Open release to devel pull request') {
             when {
-                beforeAgent true
                 allOf {
                     expression { isReleaseBranch == true }
                 }
             }
             steps {
-                script {
-                    String versionBumperBranchName = "version-bumper/${getLastTag()}"
-                    sh(script: """#!/bin/bash
-                        git push origin HEAD:refs/heads/${versionBumperBranchName}
-                    """)
-                    withCredentials([usernamePassword(credentialsId: 'tarsier-bot-pr-token-github', usernameVariable: 'GH_USERNAME', passwordVariable: 'GH_TOKEN')]) {
+                container('nodejs-' + nodeVersion) {
+                    script {
+                        String versionBumperBranchName = "version-bumper/${getLastTag()}"
                         sh(script: """
-                            curl https://api.github.com/repos/${getRepositoryName()}/pulls \
-                            -X POST \
-                            -H 'Accept: application/vnd.github.v3+json' \
-                            -H 'Authorization: token ${GH_TOKEN}' \
-                            -d '{
-                                \"title\": \"chore(release): ${getLastTag()}\",
-                                \"head\": \"${versionBumperBranchName}\",
-                                \"base\": \"devel\",
-                                \"maintainer_can_modify\": true
-                            }'
+                            git push origin HEAD:refs/heads/${versionBumperBranchName}
                         """)
+                        withCredentials([usernamePassword(credentialsId: 'jenkins-integration-with-github-account', usernameVariable: 'GH_USERNAME', passwordVariable: 'GH_TOKEN')]) {
+                            sh(script: """
+                                curl https://api.github.com/repos/${getRepositoryName()}/pulls \
+                                -X POST \
+                                -H 'Accept: application/vnd.github.v3+json' \
+                                -H 'Authorization: token ${GH_TOKEN}' \
+                                -d '{
+                                    \"title\": \"chore(release): ${getLastTag()}\",
+                                    \"head\": \"${versionBumperBranchName}\",
+                                    \"base\": \"devel\",
+                                    \"maintainer_can_modify\": true
+                                }'
+                            """)
+                        }
                     }
                 }
             }
