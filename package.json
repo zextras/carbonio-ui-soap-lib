@@ -69,6 +69,12 @@
 		"react-dom": "18.3.1",
 		"rollup": "4.60.1",
 		"sonar-scanner": "3.1.0",
+		"@semantic-release/commit-analyzer": "12.0.0",
+		"@semantic-release/github": "10.3.5",
+		"@semantic-release/npm": "11.0.3",
+		"@semantic-release/release-notes-generator": "14.1.0",
+		"conventional-changelog-conventionalcommits": "7.0.2",
+		"semantic-release": "24.2.9",
 		"typescript": "5.9.3",
 		"vitest": "3.2.4"
 	},
