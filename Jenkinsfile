@@ -4,20 +4,11 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+// FLAGS
+String nodeVersion
+
 def getPackageName() {
     return sh(script: 'grep \'"name":\' package.json | sed -n --regexp-extended \'s/.*"name": "([^"]+).*/\\1/p\' ', returnStdout: true).trim()
-}
-
-def getRepositoryName() {
-    return sh(script: '''
-        git remote -v | head -n1 | cut -d$'\t' -f2 | cut -d' ' -f1 | sed -e 's!https://github.com/!!g' -e 's!git@github.com:!!g' -e 's!.git!!g'
-    ''', returnStdout: true).trim()
-}
-
-def getLastTag() {
-    return sh(script: '''
-        git describe --tags --abbrev=0
-    ''', returnStdout: true).trim()
 }
 
 def getNodeVersion() {
@@ -61,19 +52,26 @@ pipeline {
     stages {
         stage("Read settings") {
             steps {
-                script {
-                    isReleaseBranch = "${BRANCH_NAME}" ==~ /release/
-                    echo "isReleaseBranch: ${isReleaseBranch}"
-                    isDevelBranch = "${BRANCH_NAME}" ==~ /devel/
-                    echo "isDevelBranch: ${isDevelBranch}"
-                    isPullRequest = "${BRANCH_NAME}" ==~ /PR-\d+/
-                    echo "isPullRequest: ${isPullRequest}"
-                    isSonarQubeEnabled = params.RUN_SONARQUBE == true
-                    echo "isSonarQubeEnabled: ${isSonarQubeEnabled}"
-                    branchName = env.CHANGE_BRANCH
-                    echo "branchName: ${branchName}"
-                    nodeVersion = getNodeVersion()
-                    echo "NodeJS Major Version: $nodeVersion"
+                container('base') {
+                    script {
+                        isReleaseBranch = "${BRANCH_NAME}" ==~ /release/
+                        echo "isReleaseBranch: ${isReleaseBranch}"
+                        isDevelBranch = "${BRANCH_NAME}" ==~ /devel/
+                        echo "isDevelBranch: ${isDevelBranch}"
+                        isPullRequest = "${BRANCH_NAME}" ==~ /PR-\d+/
+                        echo "isPullRequest: ${isPullRequest}"
+                        isSonarQubeEnabled = params.RUN_SONARQUBE == true
+                        echo "isSonarQubeEnabled: ${isSonarQubeEnabled}"
+                        branchName = env.CHANGE_BRANCH
+                        echo "branchName: ${branchName}"
+                        nodeVersion = getNodeVersion()
+                        echo "NodeJS Major Version: $nodeVersion"
+                    }
+                }
+                container('nodejs-' + nodeVersion) {
+                    script {
+                        sh 'corepack enable'
+                    }
                 }
                 withCredentials([
                     usernamePassword(
@@ -92,7 +90,7 @@ pipeline {
             steps {
                 container('nodejs-' + nodeVersion) {
                     script {
-                        sh 'npm ci'
+                        sh 'pnpm install --frozen-lockfile'
                     }
                 }
             }
@@ -109,40 +107,41 @@ pipeline {
                 stage('Prettify') {
                     steps {
                         container('nodejs-' + nodeVersion) {
-                            sh 'npm run prettify:check'
+                            sh 'pnpm run prettify:check'
                         }
                     }
                 }
                 stage('Lint') {
                     steps {
                         container('nodejs-' + nodeVersion) {
-                            sh 'npm run lint'
+                            sh 'pnpm run lint'
                         }
                     }
                 }
                 stage('TypeCheck') {
                     steps {
                         container('nodejs-' + nodeVersion) {
-                            sh 'npm run type-check'
+                            sh 'pnpm run type-check'
                         }
                     }
                 }
                 stage('Unit Tests') {
                     steps {
                         container('nodejs-' + nodeVersion) {
-                            sh 'npm run test'
+                            sh 'pnpm run test'
                         }
                     }
                     post {
                         always {
-                            junit 'junit.xml'
-                            recordCoverage(tools: [[parser: 'COBERTURA', pattern: 'coverage/cobertura-coverage.xml']])
+                            container('nodejs-' + nodeVersion) {
+                                junit 'junit.xml'
+                                recordCoverage(tools: [[parser: 'COBERTURA', pattern: 'coverage/cobertura-coverage.xml']])
+                            }
                         }
                     }
                 }
             }
         }
-
         stage('SonarQube analysis') {
             when {
                 allOf {
@@ -157,21 +156,21 @@ pipeline {
                 }
             }
         }
-
         stage("Build") {
             steps {
                 container('nodejs-' + nodeVersion) {
                     script {
-                        sh 'npm run build'
+                        sh 'pnpm run build'
                     }
                 }
             }
         }
-
         stage('Release') {
             when {
-                allOf {
-                    expression { isPullRequest == false }
+                anyOf {
+                    branch 'release'
+                    branch 'devel'
+                    branch 'beta'
                 }
             }
             steps {
@@ -179,40 +178,8 @@ pipeline {
                     script {
                         withCredentials([usernamePassword(credentialsId: 'npm-zextras-bot-auth-token', usernameVariable: 'AUTH_USERNAME', passwordVariable: 'NPM_TOKEN')]) {
                             withCredentials([usernamePassword(credentialsId: 'jenkins-integration-with-github-account', usernameVariable: 'GH_USERNAME', passwordVariable: 'GH_TOKEN')]) {
-                                sh "npx semantic-release"
+                                sh "pnpm exec semantic-release"
                             }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Open release to devel pull request') {
-            when {
-                allOf {
-                    expression { isReleaseBranch == true }
-                }
-            }
-            steps {
-                container('nodejs-' + nodeVersion) {
-                    script {
-                        String versionBumperBranchName = "version-bumper/${getLastTag()}"
-                        sh(script: """
-                            git push origin HEAD:refs/heads/${versionBumperBranchName}
-                        """)
-                        withCredentials([usernamePassword(credentialsId: 'jenkins-integration-with-github-account', usernameVariable: 'GH_USERNAME', passwordVariable: 'GH_TOKEN')]) {
-                            sh(script: """
-                                curl https://api.github.com/repos/${getRepositoryName()}/pulls \
-                                -X POST \
-                                -H 'Accept: application/vnd.github.v3+json' \
-                                -H 'Authorization: token ${GH_TOKEN}' \
-                                -d '{
-                                    \"title\": \"chore(release): ${getLastTag()}\",
-                                    \"head\": \"${versionBumperBranchName}\",
-                                    \"base\": \"devel\",
-                                    \"maintainer_can_modify\": true
-                                }'
-                            """)
                         }
                     }
                 }
@@ -227,7 +194,7 @@ pipeline {
                     returnStdout: true
                 ).trim()
             }
-            emailext (
+            emailext(
                 attachLog: true,
                 body: '$DEFAULT_CONTENT',
                 recipientProviders: [requestor()],
@@ -237,3 +204,4 @@ pipeline {
         }
     }
 }
+
