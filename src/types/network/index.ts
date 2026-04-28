@@ -63,6 +63,7 @@ export type GetInfoResponse = {
 	version: string;
 	rights: AccountRights;
 	lifetime: number;
+	changePasswordURL?: string;
 };
 
 export type Locale = {
