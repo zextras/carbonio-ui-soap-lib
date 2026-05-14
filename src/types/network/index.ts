@@ -8,7 +8,6 @@ import type { JSNS } from '../../constants';
 import type {
 	AccountRights,
 	AccountSettingsPrefs,
-	BooleanString,
 	Identity,
 	Signature,
 	ZimletProp
@@ -65,7 +64,6 @@ export type GetInfoResponse = {
 	rights: AccountRights;
 	lifetime: number;
 	changePasswordURL?: string;
-	zimbraPasswordLocked?: BooleanString;
 };
 
 export type Locale = {
