@@ -9,6 +9,8 @@ export default defineConfig({
 	test: {
 		environment: 'jsdom',
 		setupFiles: 'vitest.setup.ts',
+		clearMocks: true,
+		restoreMocks: true,
 		exclude: ['dist/**', 'node_modules/**'],
 		coverage: {
 			enabled: true,
