@@ -33,6 +33,17 @@ Boolean isSonarQubeEnabled
 String branchName
 String nodeVersion
 
+library(
+    identifier: 'jenkins-lib-common@v4.7.3',
+    retriever: modernSCM([
+        $class: 'GitSCMSource',
+        credentialsId: 'jenkins-integration-with-github-account',
+        remote: 'git@github.com:zextras/jenkins-lib-common.git',
+    ])
+)
+
+properties(defaultPipelineProperties())
+
 pipeline {
     agent {
         node {
@@ -51,6 +62,7 @@ pipeline {
             steps {
                 container('base') {
                     script {
+                        gitMetadata()
                         isReleaseBranch = "${BRANCH_NAME}" ==~ /release/
                         echo "isReleaseBranch: ${isReleaseBranch}"
                         isDevelBranch = "${BRANCH_NAME}" ==~ /devel/
@@ -92,6 +104,9 @@ pipeline {
                 }
             }
         }
+        stage('Security Scan') {
+            steps { gitleaksStage() }
+        }
         stage('Tests') {
             when {
                 anyOf {
@@ -125,7 +140,7 @@ pipeline {
                 stage('Unit Tests') {
                     steps {
                         container('nodejs-' + nodeVersion) {
-                            sh 'pnpm run test'
+                            sh 'pnpm run test:ci'
                         }
                     }
                     post {
