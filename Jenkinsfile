@@ -65,7 +65,7 @@ pipeline {
                         gitMetadata()
                         isReleaseBranch = "${BRANCH_NAME}" ==~ /release/
                         echo "isReleaseBranch: ${isReleaseBranch}"
-                        isDevelBranch = "${BRANCH_NAME}" ==~ /devel/
+                        isDevelBranch = env.BRANCH_IS_PRIMARY == 'true'
                         echo "isDevelBranch: ${isDevelBranch}"
                         isPullRequest = "${BRANCH_NAME}" ==~ /PR-\d+/
                         echo "isPullRequest: ${isPullRequest}"
@@ -181,7 +181,7 @@ pipeline {
             when {
                 anyOf {
                     branch 'release'
-                    branch 'devel'
+                    expression { env.BRANCH_IS_PRIMARY == 'true' }
                     branch 'beta'
                 }
             }
