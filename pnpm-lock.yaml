@@ -76,8 +76,8 @@ importers:
         specifier: 4.1.11
         version: 4.1.11(vitest@4.1.9)
       '@zextras/carbonio-ui-configs':
-        specifier: 2.1.0
-        version: 2.1.0(@testing-library/dom@10.4.2)(typescript@5.9.3)
+        specifier: 2.1.1
+        version: 2.1.1(@testing-library/dom@10.4.2)(typescript@5.9.3)
       conventional-changelog-conventionalcommits:
         specifier: 7.0.2
         version: 7.0.2
@@ -1781,8 +1781,8 @@ packages:
   '@vitest/utils@4.1.9':
     resolution: {integrity: sha512-A51o8ymO5PpqlWNnBP9ZHPXDIpuMtTLlGSjN7la4US+LJzoUMyhwjA5QXlm39JexgwHKW4Xjs8Z2d3dLCXOeuA==}
 
-  '@zextras/carbonio-ui-configs@2.1.0':
-    resolution: {integrity: sha512-eBHiSyLyGpWUJIfGHVBRVV0cY98oaQCNrTcjA4Jjh711t+LxdQd4sNYSwnsGBKAeVo21SNKH54jHj3SQSFBvPQ==}
+  '@zextras/carbonio-ui-configs@2.1.1':
+    resolution: {integrity: sha512-c8Fda9TMqtFT/Jia27SqvhcRJaAVg5ya6ZTJlgpaFdtMvtq7hssidWh/0UFgFVMmWl/Zkmjac78WQqR87N79ew==}
     peerDependencies:
       typescript: ^5.4
 
@@ -6561,7 +6561,7 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.1
 
-  '@zextras/carbonio-ui-configs@2.1.0(@testing-library/dom@10.4.2)(typescript@5.9.3)':
+  '@zextras/carbonio-ui-configs@2.1.1(@testing-library/dom@10.4.2)(typescript@5.9.3)':
     dependencies:
       '@typescript-eslint/eslint-plugin': 6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
       '@typescript-eslint/parser': 6.21.0(eslint@8.57.1)(typescript@5.9.3)
