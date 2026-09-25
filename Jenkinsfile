@@ -34,7 +34,7 @@ String branchName
 String nodeVersion
 
 library(
-    identifier: 'jenkins-lib-common@v4.11.0',
+    identifier: 'jenkins-lib-common@v4.13.0',
     retriever: modernSCM([
         $class: 'GitSCMSource',
         credentialsId: 'jenkins-integration-with-github-account',
