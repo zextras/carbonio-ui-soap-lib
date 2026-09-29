@@ -100,8 +100,8 @@ importers:
         specifier: 2.15.0
         version: 2.15.0(@types/node@25.9.8)(typescript@5.9.3)
       prettier:
-        specifier: 3.8.4
-        version: 3.8.4
+        specifier: 3.9.9
+        version: 3.9.9
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3826,6 +3826,11 @@ packages:
 
   prettier@3.8.4:
     resolution: {integrity: sha512-N2MylSdi48+5N/6S5j+maeHbUSIzzZ5uOcX5Hm4QpV8Dkb1HFjfAKTKX6yNPJQD9AhcT3ifHNB66tWTTJDi11Q==}
+    engines: {node: '>=14'}
+    hasBin: true
+
+  prettier@3.9.9:
+    resolution: {integrity: sha512-Z/CJHIkdujO/OtN7nXUii0Rf3VT5SRuhjBA82Xvu2XhBUgX3nhP67T0LHceBdQLex7OOFGTox+Q5Yg8Jk2Qivg==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -8663,7 +8668,7 @@ snapshots:
       indent-string: 4.0.0
       lodash.merge: 4.6.2
       loglevel-colored-level-prefix: 1.0.0
-      prettier: 3.8.4
+      prettier: 3.9.9
       pretty-format: 29.7.0
       require-relative: 0.8.7
       tslib: 2.8.1
@@ -8677,6 +8682,8 @@ snapshots:
       fast-diff: 1.3.0
 
   prettier@3.8.4: {}
+
+  prettier@3.9.9: {}
 
   pretty-format@27.5.1:
     dependencies:
