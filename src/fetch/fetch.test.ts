@@ -11,6 +11,8 @@ import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 
 import { legacyXmlSoapFetch, NoOpRequest, NoOpResponse } from './fetch';
 import { ApiManager } from '../apiManager/apiManager';
+import { JSNS } from '../constants';
+import { POLLING_RETRY_INTERVAL } from '../polling/pollingInterval';
 import { createEventInterceptor } from '../tests/eventInterceptor';
 import { noOpRequestHandler } from '../tests/mocks/handlers/noOpRequestHandler';
 import server from '../tests/mocks/server';
@@ -162,5 +164,67 @@ describe('Fetch', () => {
 				})
 			);
 		});
+
+		it.each<[string, () => Response]>([
+			['a network error', (): Response => HttpResponse.error()],
+			[
+				'a non-JSON response',
+				(): Response =>
+					new HttpResponse('<html><body>502 Bad Gateway</body></html>', {
+						status: 502,
+						headers: { 'Content-Type': 'text/html' }
+					})
+			]
+		])(
+			'should retry the NoOp after the retry interval and then resume the long polling if the NoOp fails with %s',
+			async (_, failingResponse) => {
+				ApiManager.getApiManager().setPollingPreference('500ms');
+
+				const noOpRequests: Array<SoapRequest<{ NoOpRequest: NoOpRequest }>> = [];
+				server.use(
+					http.post<PathParams, DefaultBodyType, SoapResponse<unknown>>(GENERIC_API_ENDPOINT, () =>
+						HttpResponse.json({
+							Body: {},
+							Header: {
+								context: {}
+							}
+						})
+					),
+					http.post<never, SoapRequest<{ NoOpRequest: NoOpRequest }>>(
+						NOOP_API_ENDPOINT,
+						async ({ request }) => {
+							noOpRequests.push(await request.json());
+							if (noOpRequests.length === 1) {
+								return failingResponse();
+							}
+							return HttpResponse.json({
+								Body: { NoOpResponse: { _jsns: JSNS.mail } },
+								Header: { context: {} }
+							});
+						}
+					)
+				);
+
+				await legacyXmlSoapFetch(GENERIC_API_NAME, {});
+				await vi.advanceTimersByTimeAsync(500);
+				expect(noOpRequests).toHaveLength(1);
+				expect(noOpRequests[0]).toMatchObject({
+					Body: { NoOpRequest: { wait: 1, limitToOneBlocked: 1 } }
+				});
+
+				await vi.advanceTimersByTimeAsync(POLLING_RETRY_INTERVAL - 1);
+				expect(noOpRequests).toHaveLength(1);
+
+				await vi.advanceTimersByTimeAsync(1);
+				expect(noOpRequests).toHaveLength(2);
+				expect(noOpRequests[1]?.Body.NoOpRequest).not.toHaveProperty('wait');
+
+				await vi.advanceTimersByTimeAsync(500);
+				expect(noOpRequests).toHaveLength(3);
+				expect(noOpRequests[2]).toMatchObject({
+					Body: { NoOpRequest: { wait: 1, limitToOneBlocked: 1 } }
+				});
+			}
+		);
 	});
 });

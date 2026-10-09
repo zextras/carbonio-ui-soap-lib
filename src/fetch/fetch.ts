@@ -14,7 +14,7 @@ import {
 	dispatchInfoRefreshReceiveEvent,
 	dispatchUserQuotaChangeEvent
 } from '../customEvent/customEventDispatcher';
-import { getPollingIntervalConfig } from '../polling/pollingInterval';
+import { getPollingIntervalConfig, POLLING_RETRY_INTERVAL } from '../polling/pollingInterval';
 import {
 	ErrorSoapBodyResponse,
 	ErrorSoapResponse,
@@ -49,7 +49,12 @@ export const noOp = ({ limitToOneBlocked, wait }: NoOpParams = {}): void => {
 	};
 	// Kept for backward compatibility
 	// eslint-disable-next-line @typescript-eslint/no-use-before-define
-	legacySoapFetch<NoOpRequest, NoOpResponse>('NoOp', requestsParams);
+	legacySoapFetch<NoOpRequest, NoOpResponse>('NoOp', requestsParams).catch(() => {
+		// A network failure or a non-JSON response (e.g. the HTML error page of a proxy) never
+		// reaches handleResponseV2, which is the only place scheduling the next NoOp.
+		// Without this retry the polling would stop until another request succeeds
+		ApiManager.getApiManager().resetPolling(() => noOp(), POLLING_RETRY_INTERVAL);
+	});
 };
 
 export const shortPollingNoOp = (): void => {
