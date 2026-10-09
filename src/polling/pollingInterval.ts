@@ -15,10 +15,10 @@ import type { RawSoapResponse } from '../types/network';
 const POLLING_NOWAIT_INTERVAL = 10_000;
 
 /**
- * Polling interval to use if a previous request failed
- * with a 500 error
+ * Polling interval to use if a previous request failed,
+ * either with a 500 error or at network level
  */
-const POLLING_RETRY_INTERVAL = 60_000;
+export const POLLING_RETRY_INTERVAL = 60_000;
 
 const POLLING_INVALID_DURATION = 30_000;
 
