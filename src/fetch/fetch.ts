@@ -14,7 +14,11 @@ import {
 	dispatchInfoRefreshReceiveEvent,
 	dispatchUserQuotaChangeEvent
 } from '../customEvent/customEventDispatcher';
-import { getPollingIntervalConfig, POLLING_RETRY_INTERVAL } from '../polling/pollingInterval';
+import {
+	BLOCKING_NOOP_MAX_DURATION,
+	getPollingIntervalConfig,
+	POLLING_RETRY_INTERVAL
+} from '../polling/pollingInterval';
 import {
 	ErrorSoapBodyResponse,
 	ErrorSoapResponse,
@@ -47,14 +51,33 @@ export const noOp = ({ limitToOneBlocked, wait }: NoOpParams = {}): void => {
 			: undefined),
 		...(wait !== undefined ? { wait: wait ? 1 : 0 } : undefined)
 	};
-	// Kept for backward compatibility
-	// eslint-disable-next-line @typescript-eslint/no-use-before-define
-	legacySoapFetch<NoOpRequest, NoOpResponse>('NoOp', requestsParams).catch(() => {
-		// A network failure or a non-JSON response (e.g. the HTML error page of a proxy) never
-		// reaches handleResponseV2, which is the only place scheduling the next NoOp.
-		// Without this retry the polling would stop until another request succeeds
-		ApiManager.getApiManager().resetPolling(() => noOp(), POLLING_RETRY_INTERVAL);
-	});
+	// Track the blocking NoOp, so that the responses received while it is pending do not schedule
+	// another one (see handleResponseV2)
+	const blockingNoOp = wait ? { sentAt: Date.now() } : undefined;
+	if (blockingNoOp) {
+		ApiManager.getApiManager().setSessionInfo({ pendingBlockingNoOp: blockingNoOp });
+	}
+	// Release the record only if it is still this NoOp's one: after a lost NoOp another one may
+	// have replaced it
+	const releaseBlockingNoOp = (): void => {
+		const { pendingBlockingNoOp } = ApiManager.getApiManager().getSessionInfo();
+		if (blockingNoOp && pendingBlockingNoOp === blockingNoOp) {
+			ApiManager.getApiManager().setSessionInfo({ pendingBlockingNoOp: undefined });
+		}
+	};
+	soapFetch<NoOpRequest, NoOpResponse>('NoOp', requestsParams)
+		.then((res) => {
+			releaseBlockingNoOp();
+			// eslint-disable-next-line @typescript-eslint/no-use-before-define
+			handleResponseV2(res);
+		})
+		.catch(() => {
+			releaseBlockingNoOp();
+			// A network failure or a non-JSON response (e.g. the HTML error page of a proxy) never
+			// reaches handleResponseV2, which is the only place scheduling the next NoOp.
+			// Without this retry the polling would stop until another request succeeds
+			ApiManager.getApiManager().resetPolling(() => noOp(), POLLING_RETRY_INTERVAL);
+		});
 };
 
 export const shortPollingNoOp = (): void => {
@@ -169,6 +192,18 @@ const handleResponseV2 = <R extends Record<string, unknown>>(res: RawSoapRespons
 
 	// Handle response context section
 	handleResponseContext(res);
+
+	// While a blocking NoOp is pending, only its own response schedules the next NoOp: the server
+	// keeps one blocking NoOp per account and would cancel the pending one with waitDisallowed.
+	// A NoOp pending for too long (or sent "in the future", if the clock moved back) is considered
+	// lost, and the polling restarts from this response
+	const { pendingBlockingNoOp } = ApiManager.getApiManager().getSessionInfo();
+	if (pendingBlockingNoOp) {
+		const pendingFor = Date.now() - pendingBlockingNoOp.sentAt;
+		if (pendingFor >= 0 && pendingFor < BLOCKING_NOOP_MAX_DURATION) {
+			return;
+		}
+	}
 
 	// Trigger the next polling
 	const nextPollingConfig = getPollingIntervalConfig(res);
