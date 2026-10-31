@@ -22,6 +22,12 @@ export const POLLING_RETRY_INTERVAL = 60_000;
 
 const POLLING_INVALID_DURATION = 30_000;
 
+/**
+ * Time after which a blocking NoOp that has not returned is considered lost.
+ * The server answers it within zimbra_noop_default_timeout (300s by default), plus a margin
+ */
+export const BLOCKING_NOOP_MAX_DURATION = 330_000;
+
 const LONG_POLLING_MARKER_VALUE = 500;
 
 export type PollingIntervalConfig = {
