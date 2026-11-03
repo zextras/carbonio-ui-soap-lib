@@ -15,6 +15,13 @@ type ApiManagerSessionInfo = {
 	pollingPreference?: string;
 	pollingTimeoutHandler?: NodeJS.Timeout;
 	/**
+	 * The blocking NoOp the polling is waiting for. Every module bundles its own copy of this
+	 * library and they all share the instance created by the shell: keeping the state here, behind
+	 * the existing getSessionInfo and setSessionInfo, shares it among all the copies and works on
+	 * instances created by older versions, which would lack a new method
+	 */
+	pendingBlockingNoOp?: { sentAt: number };
+	/**
 	 * TODO remove ASAP
 	 * @deprecated
 	 */
